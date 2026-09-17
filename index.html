@@ -1,0 +1,489 @@
+<title>Workforce Platform Build Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root{
+    --bg:#eef0f2;
+    --surface:#ffffff;
+    --ink:#14181d;
+    --ink-soft:#3d444c;
+    --muted:#6b7280;
+    --line:#d7dbe0;
+    --accent:#b3541a;
+    --accent-soft:#fbe9dc;
+    --ok:#2f7a4f;
+    --ok-bg:#e3f1e8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0e1013;
+      --surface:#151920;
+      --ink:#e7eaee;
+      --ink-soft:#b6bec8;
+      --muted:#7d8794;
+      --line:#262c35;
+      --accent:#e08a4b;
+      --accent-soft:#2a1c10;
+      --ok:#5fbd85;
+      --ok-bg:#122419;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1013;
+    --surface:#151920;
+    --ink:#e7eaee;
+    --ink-soft:#b6bec8;
+    --muted:#7d8794;
+    --line:#262c35;
+    --accent:#e08a4b;
+    --accent-soft:#2a1c10;
+    --ok:#5fbd85;
+    --ok-bg:#122419;
+  }
+  *{box-sizing:border-box;}
+  html{color-scheme:light dark;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Inter', system-ui, sans-serif;
+    padding:0 20px 60px;
+  }
+  .wrap{max-width:900px; margin:0 auto;}
+  .mono{font-family:'JetBrains Mono', ui-monospace, monospace;}
+  a{color:var(--accent);}
+
+  /* prompt-style header */
+  .term{
+    margin-top:40px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:9px 14px;
+    border-bottom:1px solid var(--line);
+    background:var(--bg);
+  }
+  .dot{width:9px; height:9px; border-radius:50%; background:var(--line);}
+  .term-title{
+    margin-left:6px; font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--muted);
+  }
+  .term-body{padding:26px 28px 28px;}
+  .prompt-line{
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; color:var(--accent); margin-bottom:14px;
+  }
+  .term h1{
+    font-family:'Inter', sans-serif; font-weight:800;
+    font-size:clamp(24px,3.6vw,34px); line-height:1.16; margin:0 0 14px;
+    text-wrap:balance;
+  }
+  .term p.sub{font-size:15px; line-height:1.6; color:var(--ink-soft); max-width:580px; margin:0 0 18px;}
+  .flags{display:flex; flex-wrap:wrap; gap:8px;}
+  .flag{
+    font-family:'JetBrains Mono', monospace; font-size:12px;
+    background:var(--accent-soft); color:var(--accent);
+    padding:3px 9px; border-radius:4px; font-weight:600;
+  }
+  .flag.ok{background:var(--ok-bg); color:var(--ok);}
+
+  section{padding:38px 0; border-top:1px solid var(--line);}
+  .head-row{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:18px;}
+  .head-row h2{font-size:19px; font-weight:700; margin:0;}
+  .head-row .idx{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--muted);}
+
+  /* build log entries: commit-style */
+  .log{display:flex; flex-direction:column; gap:0;}
+  .log-entry{
+    display:grid; grid-template-columns:96px 1fr; gap:16px;
+    padding:14px 0; border-top:1px solid var(--line);
+  }
+  .log-entry:first-child{border-top:none;}
+  .log-tag{font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--muted); padding-top:2px;}
+  .log-entry h3{font-size:14.5px; font-weight:600; margin:0 0 4px;}
+  .log-entry p{font-size:13.5px; line-height:1.6; color:var(--ink-soft); margin:0;}
+
+  /* architecture diagram */
+  .diagram-shell{
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    padding:22px; overflow-x:auto;
+  }
+  svg text{font-family:'JetBrains Mono', monospace;}
+
+  .stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden;
+  }
+  .stat{background:var(--surface); padding:16px 14px;}
+  .stat .n{font-family:'JetBrains Mono', monospace; font-size:22px; font-weight:600; font-variant-numeric:tabular-nums;}
+  .stat .l{font-size:11.5px; color:var(--muted); margin-top:3px;}
+
+  .stack-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  .stack-table tr{border-top:1px solid var(--line);}
+  .stack-table tr:first-child{border-top:none;}
+  .stack-table td{padding:10px 0; vertical-align:top;}
+  .stack-table td.k{
+    font-family:'JetBrains Mono', monospace; color:var(--muted); width:130px; font-size:12px;
+    text-transform:uppercase; letter-spacing:.05em;
+  }
+  .stack-table td.v{color:var(--ink-soft);}
+  .stack-table td.v b{color:var(--ink); font-weight:600;}
+
+  footer{padding-top:30px; font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--muted);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
+
+  /* module registry */
+  .domain-block{margin-bottom:24px;}
+  .domain-block:last-child{margin-bottom:0;}
+  .domain-tag{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:10px;
+  }
+  .domain-tag::before{content:''; width:14px; height:1px; background:var(--accent);}
+  .registry{width:100%; border-collapse:collapse;}
+  .registry tr{border-top:1px solid var(--line);}
+  .registry tr:first-child{border-top:none;}
+  .registry td{padding:10px 0; vertical-align:top; font-size:13.5px;}
+  .registry td.mod{width:230px; font-weight:600; color:var(--ink); padding-right:14px;}
+  .registry td.mod .code{display:block; font-family:'JetBrains Mono', monospace; font-weight:400; font-size:11px; color:var(--muted); margin-top:2px;}
+  .registry td.desc{color:var(--ink-soft); line-height:1.55;}
+
+  /* deep dives */
+  .dive-grid{display:flex; flex-direction:column;}
+  .dive{
+    display:grid; grid-template-columns:150px 1fr; gap:18px;
+    padding:18px 0; border-top:1px solid var(--line);
+  }
+  .dive:first-child{border-top:none; padding-top:0;}
+  .dive-label{
+    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--accent);
+    background:var(--accent-soft); border-radius:4px; padding:3px 8px;
+    display:inline-block; height:fit-content;
+  }
+  .dive h3{font-size:15px; font-weight:700; margin:0 0 6px; color:var(--ink);}
+  .dive p{font-size:13.5px; line-height:1.65; color:var(--ink-soft); margin:0;}
+  .dive p + p{margin-top:8px;}
+
+  /* security log */
+  .seclog{display:flex; flex-direction:column;}
+  .sec-entry{
+    display:grid; grid-template-columns:20px 110px 1fr; gap:12px; align-items:start;
+    padding:11px 0; border-top:1px solid var(--line); font-size:13px;
+  }
+  .sec-entry:first-child{border-top:none;}
+  .sec-dot{width:8px; height:8px; border-radius:50%; margin-top:5px;}
+  .sec-dot.fixed{background:var(--ok);}
+  .sec-dot.ongoing{background:var(--accent);}
+  .sec-when{font-family:'JetBrains Mono', monospace; color:var(--muted); font-size:11.5px; padding-top:1px;}
+  .sec-what{color:var(--ink-soft); line-height:1.55;}
+  .sec-what b{color:var(--ink); font-weight:600;}
+
+  @media (max-width:640px){
+    .stats{grid-template-columns:1fr 1fr;}
+    .log-entry{grid-template-columns:1fr;}
+    .registry td.mod{width:auto; display:block;}
+    .registry tr{display:flex; flex-direction:column; padding:12px 0;}
+    .dive{grid-template-columns:1fr;}
+    .sec-entry{grid-template-columns:16px 1fr; grid-template-areas:"dot when" "desc desc";}
+    .sec-entry .sec-dot{grid-area:dot;}
+    .sec-entry .sec-when{grid-area:when;}
+    .sec-entry .sec-what{grid-area:desc;}
+    footer{flex-direction:column;}
+  }
+</style>
+
+<div class="wrap">
+
+  <div class="term">
+    <div class="term-bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="term-title">workforce-platform — README</span>
+    </div>
+    <div class="term-body">
+      <div class="prompt-line">$ platform --status</div>
+      <h1>Workforce &amp; Staffing Operations Platform</h1>
+      <p class="sub">Full-lifecycle enterprise SaaS — hire, timesheet, invoice, and everything
+        between — built solo in six months and running in production, with an embedded
+        multi-agent AI layer.</p>
+      <div class="flags">
+        <span class="flag ok">status: production</span>
+        <span class="flag">role: sole engineer</span>
+        <span class="flag">duration: 6mo</span>
+        <span class="flag">modules: 16</span>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="head-row"><h2>Scale</h2><span class="idx">stats</span></div>
+    <div class="stats">
+      <div class="stat"><div class="n">16</div><div class="l">business modules</div></div>
+      <div class="stat"><div class="n">8</div><div class="l">AI agents orchestrated</div></div>
+      <div class="stat"><div class="n">8</div><div class="l">MCP tool servers</div></div>
+      <div class="stat"><div class="n">3,000+</div><div class="l">automated tests</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">isolated K8s clusters</div></div>
+      <div class="stat"><div class="n">6</div><div class="l">user roles, admin-editable</div></div>
+      <div class="stat"><div class="n">4+</div><div class="l">structured security audits</div></div>
+      <div class="stat"><div class="n">1</div><div class="l">engineer, architecture to deploy</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head-row"><h2>Architecture</h2><span class="idx">system diagram</span></div>
+    <div class="diagram-shell">
+      <svg viewBox="0 0 860 300" width="100%" style="min-width:640px" role="img" aria-label="Architecture: Angular frontend and admin console call the NestJS API, which reads and writes Postgres and also talks to an agent orchestrator that fans out to eight domain agents through MCP servers.">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="var(--muted)"></path>
+          </marker>
+        </defs>
+        <style>
+          .box{fill:var(--surface); stroke:var(--line); stroke-width:1.2; rx:8;}
+          .boxlabel{font-size:13px; fill:var(--ink); font-weight:600;}
+          .boxsub{font-size:10.5px; fill:var(--muted);}
+          .edge{stroke:var(--muted); stroke-width:1.3; fill:none; marker-end:url(#arrow);}
+          .agentbox{fill:var(--accent-soft); stroke:var(--accent); stroke-width:1;}
+          .agentlabel{font-size:9.5px; fill:var(--accent); font-weight:600;}
+        </style>
+
+        <rect class="box" x="20" y="30" width="140" height="52" rx="8"></rect>
+        <text class="boxlabel" x="90" y="52" text-anchor="middle">Angular 19</text>
+        <text class="boxsub" x="90" y="68" text-anchor="middle">web client</text>
+
+        <rect class="box" x="20" y="210" width="140" height="52" rx="8"></rect>
+        <text class="boxlabel" x="90" y="232" text-anchor="middle">Admin console</text>
+        <text class="boxsub" x="90" y="248" text-anchor="middle">RBAC / audit</text>
+
+        <rect class="box" x="230" y="118" width="150" height="56" rx="8"></rect>
+        <text class="boxlabel" x="305" y="141" text-anchor="middle">NestJS API</text>
+        <text class="boxsub" x="305" y="158" text-anchor="middle">16 modules</text>
+
+        <rect class="box" x="450" y="118" width="130" height="56" rx="8"></rect>
+        <text class="boxlabel" x="515" y="141" text-anchor="middle">PostgreSQL</text>
+        <text class="boxsub" x="515" y="158" text-anchor="middle">TypeORM</text>
+
+        <rect class="box" x="450" y="20" width="150" height="56" rx="8"></rect>
+        <text class="boxlabel" x="525" y="43" text-anchor="middle">Agent orchestrator</text>
+        <text class="boxsub" x="525" y="60" text-anchor="middle">LangGraph</text>
+
+        <rect class="agentbox" x="660" y="8" width="180" height="20" rx="5"></rect>
+        <text class="agentlabel" x="750" y="22" text-anchor="middle">8 domain agents · MCP · A2A</text>
+        <rect class="agentbox" x="660" y="34" width="180" height="20" rx="5"></rect>
+        <text class="agentlabel" x="750" y="48" text-anchor="middle">semantic agent memory</text>
+
+        <path class="edge" d="M160,56 C195,56 195,146 230,146"></path>
+        <path class="edge" d="M160,236 C195,236 195,160 230,160"></path>
+        <path class="edge" d="M380,146 L450,146"></path>
+        <path class="edge" d="M380,138 C410,110 420,60 450,50"></path>
+        <path class="edge" d="M600,48 L660,48"></path>
+      </svg>
+    </div>
+  </section>
+
+  <section>
+    <div class="head-row"><h2>Module registry</h2><span class="idx">16 modules · 4 domains</span></div>
+    <div class="domain-block">
+      <span class="domain-tag">Workforce ops</span>
+      <table class="registry">
+        <tr><td class="mod">Employee lifecycle<span class="code">EMP-xxxx</span></td>
+          <td class="desc">Onboarding through a four-condition <b>Final Activation</b> gate (onboarding status, I-9, E-Verify, tax ID, and ≥1 completed assignment) before an employee is billable.</td></tr>
+        <tr><td class="mod">Clients &amp; assignments<span class="code"></span></td>
+          <td class="desc">Client roster and placement/assignment tracking that timesheets and invoices key off of downstream.</td></tr>
+        <tr><td class="mod">Timesheets<span class="code">TSH-xxxx</span></td>
+          <td class="desc">Period-based submission (start date + period length) gated behind a required client-approval screenshot upload — enforced client-side and re-validated server-side.</td></tr>
+        <tr><td class="mod">Holidays &amp; alerts<span class="code"></span></td>
+          <td class="desc">Role-scoped holiday calendar feeding timesheet highlighting, plus a daily cron job evaluating alert conditions across the platform.</td></tr>
+      </table>
+    </div>
+    <div class="domain-block">
+      <span class="domain-tag">Finance</span>
+      <table class="registry">
+        <tr><td class="mod">Invoicing<span class="code">INV-xxxx</span></td>
+          <td class="desc">Billing-period invoices generated only from timesheets that are approved and matched to the same client — prevents cross-client or unapproved billing.</td></tr>
+        <tr><td class="mod">Expenses<span class="code">EXP-xxxx</span></td>
+          <td class="desc">Categorized claims (transport, accommodation, meals, supplies, training, other) scoped to the submitting employee, routed through the same rules engine as timesheets.</td></tr>
+        <tr><td class="mod">Reports<span class="code"></span></td>
+          <td class="desc">Cross-module CSV export pipeline for finance and operations reporting.</td></tr>
+      </table>
+    </div>
+    <div class="domain-block">
+      <span class="domain-tag">Talent</span>
+      <table class="registry">
+        <tr><td class="mod">Recruitment / ATS<span class="code"></span></td>
+          <td class="desc">Job postings, candidates, and applications, with a public unauthenticated <span class="mono">/apply</span> endpoint feeding directly into the internal pipeline.</td></tr>
+        <tr><td class="mod">Bench sales &amp; training<span class="code"></span></td>
+          <td class="desc">A 12-table subsystem covering OPT candidates, hotlists, vendor submissions, mail blasts, training courses, and tokenized public feedback forms — no login required for external respondents.</td></tr>
+      </table>
+    </div>
+    <div class="domain-block">
+      <span class="domain-tag">Platform</span>
+      <table class="registry">
+        <tr><td class="mod">Configurable RBAC<span class="code"></span></td>
+          <td class="desc">Roles and their permission-key grants are admin-editable records, not compiled checks — new roles ship with zero deploys.</td></tr>
+        <tr><td class="mod">Business rules engine<span class="code"></span></td>
+          <td class="desc">Evaluates timesheet/expense submissions through an LLM call, returning typed <span class="mono">{blocking[], warnings[]}</span> before a state transition is allowed.</td></tr>
+        <tr><td class="mod">Notifications<span class="code"></span></td>
+          <td class="desc">A dedicated WebSocket namespace pushing real-time updates alongside the REST API.</td></tr>
+        <tr><td class="mod">Audit &amp; announcements<span class="code"></span></td>
+          <td class="desc">Org-wide event log and announcement broadcast, both role-visibility aware.</td></tr>
+        <tr><td class="mod">Tickets + GitHub sync<span class="code"></span></td>
+          <td class="desc">HMAC-signed GitHub webhook integration with a 15-minute cron fallback and a manual sync endpoint, so ticket state never silently drifts from the repo.</td></tr>
+        <tr><td class="mod">Document storage<span class="code"></span></td>
+          <td class="desc">Healthcare-plan PDFs and other documents in blob storage, served through time-boxed (1-hour) signed URLs rather than public paths.</td></tr>
+        <tr><td class="mod">AI chat assistant<span class="code"></span></td>
+          <td class="desc">A role-aware in-app assistant with a rate-limited LLM gateway, generating its own knowledge/help content per role from a single source of navigation truth.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="head-row"><h2>Engineering deep-dives</h2><span class="idx">05 hard problems</span></div>
+    <div class="dive-grid">
+      <div class="dive">
+        <span class="dive-label">rbac</span>
+        <div>
+          <h3>Permissions as data, not code</h3>
+          <p>Six default roles ship, but every role's permission-key set is admin-editable at
+            runtime through a dedicated roles module. The alternative — permission checks
+            hardcoded per endpoint — was rejected early because staffing orgs redefine who can
+            see what constantly; that decision paid off across every later module.</p>
+        </div>
+      </div>
+      <div class="dive">
+        <span class="dive-label">agents</span>
+        <div>
+          <h3>Eight-agent orchestration layer</h3>
+          <p>A LangGraph orchestrator classifies intent and routes to eight domain agents
+            (onboarding, time &amp; expense, support, admin, devops, and others) each backed by
+            its own MCP tool server. Agents interoperate over Google's A2A protocol and share a
+            semantic long-term memory with an automatic-extraction, dedup-on-write pipeline.</p>
+          <p>The hard part wasn't any single agent — it was keeping the orchestrator's routing
+            prompt in sync as tools were added to individual agents, since a mismatch only
+            surfaces as live requests silently misrouting.</p>
+        </div>
+      </div>
+      <div class="dive">
+        <span class="dive-label">rules</span>
+        <div>
+          <h3>LLM-gated state transitions</h3>
+          <p>Timesheet and expense submission isn't a static form validator — it calls an LLM to
+            evaluate business-rule conditions and returns blocking vs. warning-level findings,
+            so rule logic can evolve without a backend redeploy.</p>
+        </div>
+      </div>
+      <div class="dive">
+        <span class="dive-label">infra</span>
+        <div>
+          <h3>Two fully isolated clusters</h3>
+          <p>Separate Kubernetes clusters for production and development — separate registries,
+            separate databases, separate ingress — with multi-architecture container builds and
+            path-filtered CI/CD so a frontend-only change doesn't trigger a backend rollout.</p>
+        </div>
+      </div>
+      <div class="dive">
+        <span class="dive-label">security</span>
+        <div>
+          <h3>Hardening as a cadence, not a gate</h3>
+          <p>Recurring structured audits across app and infrastructure layers — not a single
+            pre-launch checklist. Findings (access-control gaps, secret exposure patterns,
+            network-policy review) get fixed and re-verified against the live environment on a
+            standing schedule.</p>
+        </div>
+      </div>
+      <div class="dive">
+        <span class="dive-label">testing</span>
+        <div>
+          <h3>Test suite as a real gate</h3>
+          <p>3,000+ backend and frontend tests enforced through a CI coverage threshold —
+            strict enough that a legitimate merge has silently failed deploy on falling short
+            of it, which shaped how test coverage gets tracked going forward.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head-row"><h2>Build log</h2><span class="idx">6 months</span></div>
+    <div class="log">
+      <div class="log-entry">
+        <span class="log-tag">mo. 01–02</span>
+        <div><h3>feat: core platform + identity</h3>
+          <p>Auth, employee lifecycle, and a configurable RBAC engine — permissions as
+            admin-editable data, not hardcoded checks.</p></div>
+      </div>
+      <div class="log-entry">
+        <span class="log-tag">mo. 03–04</span>
+        <div><h3>feat: operational core</h3>
+          <p>Timesheets, invoicing, expenses, assignments, and an LLM-gated business rules
+            engine sitting in front of every submit.</p></div>
+      </div>
+      <div class="log-entry">
+        <span class="log-tag">mo. 05</span>
+        <div><h3>feat: talent + platform modules</h3>
+          <p>Recruitment/ATS, bench sales &amp; training, ticketing with GitHub webhook sync,
+            real-time notifications, reporting, audit trail.</p></div>
+      </div>
+      <div class="log-entry">
+        <span class="log-tag">mo. 06</span>
+        <div><h3>feat: agent layer + infra hardening</h3>
+          <p>Eight-agent LangGraph orchestration over MCP/A2A, dual-cluster Kubernetes
+            deployment, and structured security-hardening passes ahead of launch.</p></div>
+      </div>
+      <div class="log-entry">
+        <span class="log-tag">ongoing</span>
+        <div><h3>chore: hardening cadence</h3>
+          <p>Recurring app + infra security reviews treated as standing practice post-launch,
+            not a one-time gate.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head-row"><h2>Security cadence</h2><span class="idx">audit trail</span></div>
+    <div class="seclog">
+      <div class="sec-entry">
+        <span class="sec-dot fixed"></span>
+        <span class="sec-when">audit 01</span>
+        <span class="sec-what"><b>App + infra review</b> — closed a sensitive-field leak in an API response and tightened an auth-token expiry bypass, same day as the finding.</span>
+      </div>
+      <div class="sec-entry">
+        <span class="sec-dot fixed"></span>
+        <span class="sec-when">audit 02</span>
+        <span class="sec-what"><b>Resource-level cloud review</b> — closed exposed management ports, locked network access rules on secret stores, and moved a storage account behind a private endpoint.</span>
+      </div>
+      <div class="sec-entry">
+        <span class="sec-dot fixed"></span>
+        <span class="sec-when">audit 03</span>
+        <span class="sec-what"><b>Network review</b> — added a stable-egress NAT gateway and subnet-level network security group on the database tier for both clusters.</span>
+      </div>
+      <div class="sec-entry">
+        <span class="sec-dot fixed"></span>
+        <span class="sec-when">audit 04</span>
+        <span class="sec-what"><b>App review</b> — closed a recurring same-shape data-leak pattern (a sensitive field returned through an unrelated endpoint) found for the fifth time across services, plus a broken-object-level-authorization gap on client data.</span>
+      </div>
+      <div class="sec-entry">
+        <span class="sec-dot ongoing"></span>
+        <span class="sec-when">standing</span>
+        <span class="sec-what"><b>Deliberate, tracked deferrals</b> — a small number of hardening items (secret-rotation cadence, one network-policy layer) are open by conscious cost/risk tradeoff, not oversight, and get re-checked each cycle.</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head-row"><h2>Stack</h2><span class="idx">dependencies</span></div>
+    <table class="stack-table">
+      <tr><td class="k">backend</td><td class="v"><b>NestJS</b> · TypeScript · TypeORM · PostgreSQL · JWT · WebSockets</td></tr>
+      <tr><td class="k">frontend</td><td class="v"><b>Angular 19</b> · standalone components · signals · Material</td></tr>
+      <tr><td class="k">ai / agentic</td><td class="v"><b>LangGraph</b> · MCP · Google A2A · Claude API · vector memory</td></tr>
+      <tr><td class="k">cloud</td><td class="v"><b>Kubernetes (AKS)</b> · multi-arch Docker · GitHub Actions CI/CD · Key Vault · Blob storage · distributed tracing</td></tr>
+      <tr><td class="k">testing</td><td class="v"><b>Jest</b> · Karma · TDD-oriented</td></tr>
+      <tr><td class="k">practice</td><td class="v"><b>AI-assisted, multi-agent workflow</b> for review, refactors &amp; security audits — solo-authored merge decisions</td></tr>
+    </table>
+  </section>
+
+  <footer>
+    <span>// details generalized for public sharing — architecture &amp; stack accurately represented</span>
+    <span>rev 2026-09-16</span>
+  </footer>
+</div>
