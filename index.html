@@ -1,489 +1,1120 @@
-<title>Workforce Platform Build Log</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap">
-<style>
-  :root{
-    --bg:#eef0f2;
-    --surface:#ffffff;
-    --ink:#14181d;
-    --ink-soft:#3d444c;
-    --muted:#6b7280;
-    --line:#d7dbe0;
-    --accent:#b3541a;
-    --accent-soft:#fbe9dc;
-    --ok:#2f7a4f;
-    --ok-bg:#e3f1e8;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#0e1013;
-      --surface:#151920;
-      --ink:#e7eaee;
-      --ink-soft:#b6bec8;
-      --muted:#7d8794;
-      --line:#262c35;
-      --accent:#e08a4b;
-      --accent-soft:#2a1c10;
-      --ok:#5fbd85;
-      --ok-bg:#122419;
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Worq360 — Agentic Workforce Platform</title>
+  <meta name="description" content="Worq360 runs staffing operations end to end — onboarding, timesheets, invoicing, compliance and recruiting — with a LangGraph multi-agent AI layer, MCP tool servers and human-in-the-loop approvals." />
+  <meta name="theme-color" content="#2D2D2D" />
+  <meta property="og:title" content="Worq360 — Agentic Workforce Platform" />
+  <meta property="og:description" content="Staffing & vendor management with 10 LangGraph agents, 140+ MCP tools and human-in-the-loop approval for every write." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sunilravuri.github.io/" />
+  <meta property="og:image" content="https://sunilravuri.github.io/assets/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Worq360: staffing operations run by people and AI agents together" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://sunilravuri.github.io/assets/og-image.png" />
+  <link rel="canonical" href="https://sunilravuri.github.io/" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='28' fill='%23C41515'/%3E%3Ccircle cx='60' cy='37' r='14' fill='%23fff'/%3E%3Cpath d='M22 88Q60 48 98 88' fill='none' stroke='%23fff' stroke-width='10' stroke-linecap='round'/%3E%3Cpath d='M32 102Q60 76 88 102' fill='none' stroke='%23fff' stroke-opacity='.55' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E" />
+
+  <!-- Theme before first paint: saved choice, else system preference -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('worq360-theme'); } catch (e) {}
+      if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = t;
+      document.documentElement.classList.add('js');
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Prebuilt Tailwind (see tailwind.config.js): npx tailwindcss@3.4.17 -i src/tailwind.css -o assets/site.css --minify -->
+  <link rel="stylesheet" href="assets/site.css" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    /* Brand tokens — mirror frontend/src/styles.css (Enterprise + Aurora Glass, Slate Dim in dark) */
+    :root {
+      --brand: 196 21 21;      /* #C41515 */
+      --brand-dk: 160 16 16;   /* #A01010 */
+      --brand-lt: 254 242 242; /* #FEF2F2 */
+      --page: 244 246 249;     /* #F4F6F9 */
+      --card: 255 255 255;
+      --line: 221 226 232;     /* #DDE2E8 */
+      --ink: 13 27 46;         /* #0D1B2E */
+      --body: 55 65 81;        /* #374151 */
+      --muted: 107 114 128;    /* #6B7280 */
+      --glass-bg: rgba(255,255,255,.72);
+      --glass-bg-strong: rgba(255,255,255,.88);
+      --glass-bd: rgba(255,255,255,.92);
+      --glass-shadow: 0 10px 30px -18px rgba(31,31,31,.35), 0 1px 2px rgba(196,21,21,.05);
+      --glow-1: rgba(247,180,180,.42);
+      --glow-2: rgba(250,212,204,.45);
+      --glow-3: rgba(226,228,234,.7);
+      --band-1: #1F1F1F; --band-2: #2D2D2D;
+      --brand-gradient: linear-gradient(135deg, #8B0000 0%, #C41515 55%, #E53535 100%);
     }
-  }
-  :root[data-theme="dark"]{
-    --bg:#0e1013;
-    --surface:#151920;
-    --ink:#e7eaee;
-    --ink-soft:#b6bec8;
-    --muted:#7d8794;
-    --line:#262c35;
-    --accent:#e08a4b;
-    --accent-soft:#2a1c10;
-    --ok:#5fbd85;
-    --ok-bg:#122419;
-  }
-  *{box-sizing:border-box;}
-  html{color-scheme:light dark;}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family:'Inter', system-ui, sans-serif;
-    padding:0 20px 60px;
-  }
-  .wrap{max-width:900px; margin:0 auto;}
-  .mono{font-family:'JetBrains Mono', ui-monospace, monospace;}
-  a{color:var(--accent);}
+    [data-theme="dark"] {
+      --brand: 240 106 110;    /* #F06A6E */
+      --brand-dk: 229 83 75;   /* #E5534B */
+      --brand-lt: 58 40 44;
+      --page: 34 39 46;        /* #22272E */
+      --card: 45 51 59;        /* #2D333B */
+      --line: 68 76 86;        /* #444C56 */
+      --ink: 230 237 243;      /* #E6EDF3 */
+      --body: 197 208 218;     /* #C5D0DA */
+      --muted: 139 152 165;    /* #8B98A5 */
+      --glass-bg: rgba(45,51,59,.82);
+      --glass-bg-strong: rgba(45,51,59,.94);
+      --glass-bd: rgba(255,255,255,.07);
+      --glass-shadow: 0 10px 26px -16px rgba(0,0,0,.55);
+      --glow-1: rgba(240,106,110,.10);
+      --glow-2: rgba(83,155,245,.06);
+      --glow-3: rgba(0,0,0,.18);
+      --band-1: #161B21; --band-2: #1C2128;
+      --brand-gradient: linear-gradient(135deg, #5C1A1C 0%, #8E2A2D 55%, #B23B3F 100%);
+    }
+    html, body { overflow-x: clip; }   /* no sideways page scroll on phones (spinning ring, orbit chips) */
+    body { background: rgb(var(--page)); }
 
-  /* prompt-style header */
-  .term{
-    margin-top:40px;
-    background:var(--surface);
-    border:1px solid var(--line);
-    border-radius:10px;
-    overflow:hidden;
-  }
-  .term-bar{
-    display:flex; align-items:center; gap:8px;
-    padding:9px 14px;
-    border-bottom:1px solid var(--line);
-    background:var(--bg);
-  }
-  .dot{width:9px; height:9px; border-radius:50%; background:var(--line);}
-  .term-title{
-    margin-left:6px; font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--muted);
-  }
-  .term-body{padding:26px 28px 28px;}
-  .prompt-line{
-    font-family:'JetBrains Mono', monospace; font-size:12.5px; color:var(--accent); margin-bottom:14px;
-  }
-  .term h1{
-    font-family:'Inter', sans-serif; font-weight:800;
-    font-size:clamp(24px,3.6vw,34px); line-height:1.16; margin:0 0 14px;
-    text-wrap:balance;
-  }
-  .term p.sub{font-size:15px; line-height:1.6; color:var(--ink-soft); max-width:580px; margin:0 0 18px;}
-  .flags{display:flex; flex-wrap:wrap; gap:8px;}
-  .flag{
-    font-family:'JetBrains Mono', monospace; font-size:12px;
-    background:var(--accent-soft); color:var(--accent);
-    padding:3px 9px; border-radius:4px; font-weight:600;
-  }
-  .flag.ok{background:var(--ok-bg); color:var(--ok);}
+    /* Aurora Glass surfaces */
+    .glass {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-bd);
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(16px) saturate(1.3); -webkit-backdrop-filter: blur(16px) saturate(1.3);
+    }
+    .glass-strong {
+      background: var(--glass-bg-strong);
+      border: 1px solid rgb(var(--line) / .7);
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    }
+    .band { background: linear-gradient(160deg, var(--band-1) 0%, var(--band-2) 100%); }
+    .band-card { background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.08); }
+    .text-gradient {
+      background: linear-gradient(110deg, rgb(var(--ink)) 30%, rgb(var(--brand)));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .text-gradient-ember {
+      background: linear-gradient(110deg, #ffffff 10%, #F2463F 70%, #FF8A80);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .stat-value {
+      background: linear-gradient(110deg, rgb(var(--ink)) 40%, rgb(var(--brand)));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .btn-brand { background: var(--brand-gradient); box-shadow: 0 12px 28px -12px rgba(196,21,21,.6); }
+    .btn-brand:hover { filter: brightness(1.08); }
 
-  section{padding:38px 0; border-top:1px solid var(--line);}
-  .head-row{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:18px;}
-  .head-row h2{font-size:19px; font-weight:700; margin:0;}
-  .head-row .idx{font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--muted);}
+    /* Category icon chips — colour lives in the chip, as on the app's dashboards */
+    .ic { display: grid; place-items: center; border-radius: 12px; }
+    .ic-red    { background: #FEF2F2; color: #C41515; }
+    .ic-blue   { background: #EFF6FF; color: #2563EB; }
+    .ic-amber  { background: #FFFBEB; color: #D97706; }
+    .ic-green  { background: #ECFDF5; color: #059669; }
+    .ic-violet { background: #F5F3FF; color: #7C3AED; }
+    .ic-slate  { background: #F1F5F9; color: #334155; }
+    [data-theme="dark"] .ic-red    { background: rgba(240,106,110,.14); color: #F06A6E; }
+    [data-theme="dark"] .ic-blue   { background: rgba(83,155,245,.14);  color: #6CB6FF; }
+    [data-theme="dark"] .ic-amber  { background: rgba(218,170,63,.14);  color: #DAAA3F; }
+    [data-theme="dark"] .ic-green  { background: rgba(87,171,90,.14);   color: #6BC46D; }
+    [data-theme="dark"] .ic-violet { background: rgba(167,139,250,.14); color: #B4A0FA; }
+    [data-theme="dark"] .ic-slate  { background: rgba(255,255,255,.06); color: #C5D0DA; }
 
-  /* build log entries: commit-style */
-  .log{display:flex; flex-direction:column; gap:0;}
-  .log-entry{
-    display:grid; grid-template-columns:96px 1fr; gap:16px;
-    padding:14px 0; border-top:1px solid var(--line);
-  }
-  .log-entry:first-child{border-top:none;}
-  .log-tag{font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--muted); padding-top:2px;}
-  .log-entry h3{font-size:14.5px; font-weight:600; margin:0 0 4px;}
-  .log-entry p{font-size:13.5px; line-height:1.6; color:var(--ink-soft); margin:0;}
+    .js .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s cubic-bezier(.2,.8,.2,1), transform .8s cubic-bezier(.2,.8,.2,1); }
+    .js .reveal.in { opacity: 1; transform: none; }
+    .card-hover { transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, border-color .35s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 22px 40px -22px rgba(196,21,21,.45); }
+    .tab-btn[aria-selected="true"] { background: rgb(var(--brand-lt)); color: rgb(var(--brand)); border-color: rgb(var(--brand) / .45); }
+    .code-tab[aria-selected="true"] { background: rgba(255,255,255,.1); color: #fff; }
+    .node { transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease; cursor: pointer; }
+    .node:focus-visible, .agent-chip:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid rgb(var(--brand)); outline-offset: 2px; }
+    .node.active { border-color: rgb(var(--brand) / .7); box-shadow: 0 0 0 1px rgb(var(--brand) / .3), 0 14px 36px -14px rgba(196,21,21,.5); transform: translateY(-2px); }
+    .agent-chip { transition: background .25s ease, border-color .25s ease, color .25s ease; }
+    .agent-chip[aria-pressed="true"] { background: rgba(242,70,63,.18); border-color: rgba(242,70,63,.6); color: #fff; }
+    .flow-line { stroke-dasharray: 6 6; }
 
-  /* architecture diagram */
-  .diagram-shell{
-    background:var(--surface); border:1px solid var(--line); border-radius:10px;
-    padding:22px; overflow-x:auto;
-  }
-  svg text{font-family:'JetBrains Mono', monospace;}
+    /* 360 orbit */
+    .orbit { --r: min(190px, 37vw); position: relative; width: min(440px, 86vw); aspect-ratio: 1; }
+    .orbit-track { position: absolute; inset: 0; }
+    .orbit-chip { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); will-change: transform; }
 
-  .stats{
-    display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
-    background:var(--line); border:1px solid var(--line); border-radius:8px; overflow:hidden;
-  }
-  .stat{background:var(--surface); padding:16px 14px;}
-  .stat .n{font-family:'JetBrains Mono', monospace; font-size:22px; font-weight:600; font-variant-numeric:tabular-nums;}
-  .stat .l{font-size:11.5px; color:var(--muted); margin-top:3px;}
+    /* HITL demo */
+    .step { opacity: 0; transform: translateY(6px); transition: opacity .4s ease, transform .4s ease; }
+    .step.show { opacity: 1; transform: none; }
 
-  .stack-table{width:100%; border-collapse:collapse; font-size:13.5px;}
-  .stack-table tr{border-top:1px solid var(--line);}
-  .stack-table tr:first-child{border-top:none;}
-  .stack-table td{padding:10px 0; vertical-align:top;}
-  .stack-table td.k{
-    font-family:'JetBrains Mono', monospace; color:var(--muted); width:130px; font-size:12px;
-    text-transform:uppercase; letter-spacing:.05em;
-  }
-  .stack-table td.v{color:var(--ink-soft);}
-  .stack-table td.v b{color:var(--ink); font-weight:600;}
+    pre[class*="language-"] { background: transparent !important; margin: 0 !important; padding: 0 !important; font-size: 12.5px; line-height: 1.7; }
+    code[class*="language-"] { font-family: 'JetBrains Mono', monospace !important; text-shadow: none !important; }
+    .scrollbar-thin::-webkit-scrollbar { height: 8px; width: 8px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255,255,255,.14); border-radius: 8px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+      .js .reveal, .step { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
 
-  footer{padding-top:30px; font-family:'JetBrains Mono', monospace; font-size:11.5px; color:var(--muted);
-    display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
+<body class="font-sans text-body antialiased selection:bg-brand/20 selection:text-ink overflow-x-hidden">
 
-  /* module registry */
-  .domain-block{margin-bottom:24px;}
-  .domain-block:last-child{margin-bottom:0;}
-  .domain-tag{
-    display:inline-flex; align-items:center; gap:7px;
-    font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
-    color:var(--accent); margin-bottom:10px;
-  }
-  .domain-tag::before{content:''; width:14px; height:1px; background:var(--accent);}
-  .registry{width:100%; border-collapse:collapse;}
-  .registry tr{border-top:1px solid var(--line);}
-  .registry tr:first-child{border-top:none;}
-  .registry td{padding:10px 0; vertical-align:top; font-size:13.5px;}
-  .registry td.mod{width:230px; font-weight:600; color:var(--ink); padding-right:14px;}
-  .registry td.mod .code{display:block; font-family:'JetBrains Mono', monospace; font-weight:400; font-size:11px; color:var(--muted); margin-top:2px;}
-  .registry td.desc{color:var(--ink-soft); line-height:1.55;}
-
-  /* deep dives */
-  .dive-grid{display:flex; flex-direction:column;}
-  .dive{
-    display:grid; grid-template-columns:150px 1fr; gap:18px;
-    padding:18px 0; border-top:1px solid var(--line);
-  }
-  .dive:first-child{border-top:none; padding-top:0;}
-  .dive-label{
-    font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--accent);
-    background:var(--accent-soft); border-radius:4px; padding:3px 8px;
-    display:inline-block; height:fit-content;
-  }
-  .dive h3{font-size:15px; font-weight:700; margin:0 0 6px; color:var(--ink);}
-  .dive p{font-size:13.5px; line-height:1.65; color:var(--ink-soft); margin:0;}
-  .dive p + p{margin-top:8px;}
-
-  /* security log */
-  .seclog{display:flex; flex-direction:column;}
-  .sec-entry{
-    display:grid; grid-template-columns:20px 110px 1fr; gap:12px; align-items:start;
-    padding:11px 0; border-top:1px solid var(--line); font-size:13px;
-  }
-  .sec-entry:first-child{border-top:none;}
-  .sec-dot{width:8px; height:8px; border-radius:50%; margin-top:5px;}
-  .sec-dot.fixed{background:var(--ok);}
-  .sec-dot.ongoing{background:var(--accent);}
-  .sec-when{font-family:'JetBrains Mono', monospace; color:var(--muted); font-size:11.5px; padding-top:1px;}
-  .sec-what{color:var(--ink-soft); line-height:1.55;}
-  .sec-what b{color:var(--ink); font-weight:600;}
-
-  @media (max-width:640px){
-    .stats{grid-template-columns:1fr 1fr;}
-    .log-entry{grid-template-columns:1fr;}
-    .registry td.mod{width:auto; display:block;}
-    .registry tr{display:flex; flex-direction:column; padding:12px 0;}
-    .dive{grid-template-columns:1fr;}
-    .sec-entry{grid-template-columns:16px 1fr; grid-template-areas:"dot when" "desc desc";}
-    .sec-entry .sec-dot{grid-area:dot;}
-    .sec-entry .sec-when{grid-area:when;}
-    .sec-entry .sec-what{grid-area:desc;}
-    footer{flex-direction:column;}
-  }
-</style>
-
-<div class="wrap">
-
-  <div class="term">
-    <div class="term-bar">
-      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-      <span class="term-title">workforce-platform — README</span>
-    </div>
-    <div class="term-body">
-      <div class="prompt-line">$ platform --status</div>
-      <h1>Workforce &amp; Staffing Operations Platform</h1>
-      <p class="sub">Full-lifecycle enterprise SaaS — hire, timesheet, invoice, and everything
-        between — built solo in six months and running in production, with an embedded
-        multi-agent AI layer.</p>
-      <div class="flags">
-        <span class="flag ok">status: production</span>
-        <span class="flag">role: sole engineer</span>
-        <span class="flag">duration: 6mo</span>
-        <span class="flag">modules: 16</span>
-      </div>
-    </div>
+  <!-- Aurora glow -->
+  <div aria-hidden="true" class="pointer-events-none fixed inset-0 -z-10">
+    <div class="absolute -top-40 -left-40 h-[34rem] w-[46rem] rounded-full blur-[110px] animate-glow" style="background: var(--glow-1)"></div>
+    <div class="absolute top-[35%] -right-40 h-[30rem] w-[40rem] rounded-full blur-[110px]" style="background: var(--glow-2)"></div>
+    <div class="absolute -bottom-40 left-1/3 h-[26rem] w-[36rem] rounded-full blur-[110px]" style="background: var(--glow-3)"></div>
   </div>
 
-  <section>
-    <div class="head-row"><h2>Scale</h2><span class="idx">stats</span></div>
-    <div class="stats">
-      <div class="stat"><div class="n">16</div><div class="l">business modules</div></div>
-      <div class="stat"><div class="n">8</div><div class="l">AI agents orchestrated</div></div>
-      <div class="stat"><div class="n">8</div><div class="l">MCP tool servers</div></div>
-      <div class="stat"><div class="n">3,000+</div><div class="l">automated tests</div></div>
-      <div class="stat"><div class="n">2</div><div class="l">isolated K8s clusters</div></div>
-      <div class="stat"><div class="n">6</div><div class="l">user roles, admin-editable</div></div>
-      <div class="stat"><div class="n">4+</div><div class="l">structured security audits</div></div>
-      <div class="stat"><div class="n">1</div><div class="l">engineer, architecture to deploy</div></div>
+  <!-- NAV -->
+  <header class="fixed inset-x-0 top-4 z-50 px-4">
+    <nav aria-label="Primary" class="glass-strong mx-auto flex max-w-6xl items-center justify-between rounded-2xl px-4 py-3">
+      <a href="#top" class="flex items-center gap-2.5" aria-label="Worq360 home">
+        <svg class="h-8 w-8" viewBox="0 0 120 120" aria-hidden="true">
+          <rect width="120" height="120" rx="28" fill="#C41515"/>
+          <circle cx="60" cy="37" r="14" fill="#fff"/>
+          <path d="M22 88Q60 48 98 88" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+          <path d="M32 102Q60 76 88 102" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="7" stroke-linecap="round"/>
+        </svg>
+        <span class="text-lg font-bold tracking-tight text-ink">Worq<span class="text-brand">360</span></span>
+      </a>
+      <ul class="hidden items-center gap-1 text-sm font-medium md:flex">
+        <li><a href="#platform" class="rounded-lg px-3 py-2 transition hover:bg-brand-lt hover:text-brand">Platform</a></li>
+        <li><a href="#ai" class="rounded-lg px-3 py-2 transition hover:bg-brand-lt hover:text-brand">AI &amp; Agents</a></li>
+        <li><a href="#architecture" class="rounded-lg px-3 py-2 transition hover:bg-brand-lt hover:text-brand">Architecture</a></li>
+        <li><a href="#engineering" class="rounded-lg px-3 py-2 transition hover:bg-brand-lt hover:text-brand">Engineering</a></li>
+        <li><a href="#contact" class="rounded-lg px-3 py-2 transition hover:bg-brand-lt hover:text-brand">Contact</a></li>
+      </ul>
+      <div class="flex items-center gap-2">
+        <button id="themeBtn" type="button" class="grid h-9 w-9 place-items-center rounded-lg text-muted transition hover:bg-brand-lt hover:text-brand" aria-label="Toggle dark mode">
+          <i data-lucide="moon" class="h-4 w-4 dark:hidden"></i><i data-lucide="sun" class="hidden h-4 w-4 dark:block"></i>
+        </button>
+        <a data-link="github" href="https://github.com/" target="_blank" rel="noopener" class="btn-brand hidden items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold text-white transition md:inline-flex">
+          <i data-lucide="github" class="h-4 w-4"></i> Profile
+        </a>
+        <button id="menuBtn" class="grid h-9 w-9 place-items-center rounded-lg text-ink hover:bg-brand-lt md:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+          <i data-lucide="menu" class="h-5 w-5"></i>
+        </button>
+      </div>
+    </nav>
+    <div id="mobileMenu" class="glass-strong mx-auto mt-2 hidden max-w-6xl rounded-2xl p-2 font-medium text-ink md:hidden">
+      <a href="#platform" class="block rounded-lg px-4 py-3 hover:bg-brand-lt">Platform</a>
+      <a href="#ai" class="block rounded-lg px-4 py-3 hover:bg-brand-lt">AI &amp; Agents</a>
+      <a href="#architecture" class="block rounded-lg px-4 py-3 hover:bg-brand-lt">Architecture</a>
+      <a href="#engineering" class="block rounded-lg px-4 py-3 hover:bg-brand-lt">Engineering</a>
+      <a href="#contact" class="block rounded-lg px-4 py-3 hover:bg-brand-lt">Contact</a>
     </div>
-  </section>
+  </header>
 
-  <section>
-    <div class="head-row"><h2>Architecture</h2><span class="idx">system diagram</span></div>
-    <div class="diagram-shell">
-      <svg viewBox="0 0 860 300" width="100%" style="min-width:640px" role="img" aria-label="Architecture: Angular frontend and admin console call the NestJS API, which reads and writes Postgres and also talks to an agent orchestrator that fans out to eight domain agents through MCP servers.">
-        <defs>
-          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill="var(--muted)"></path>
-          </marker>
-        </defs>
-        <style>
-          .box{fill:var(--surface); stroke:var(--line); stroke-width:1.2; rx:8;}
-          .boxlabel{font-size:13px; fill:var(--ink); font-weight:600;}
-          .boxsub{font-size:10.5px; fill:var(--muted);}
-          .edge{stroke:var(--muted); stroke-width:1.3; fill:none; marker-end:url(#arrow);}
-          .agentbox{fill:var(--accent-soft); stroke:var(--accent); stroke-width:1;}
-          .agentlabel{font-size:9.5px; fill:var(--accent); font-weight:600;}
-        </style>
+  <main id="top">
 
-        <rect class="box" x="20" y="30" width="140" height="52" rx="8"></rect>
-        <text class="boxlabel" x="90" y="52" text-anchor="middle">Angular 19</text>
-        <text class="boxsub" x="90" y="68" text-anchor="middle">web client</text>
+    <!-- 1. HERO -->
+    <section aria-labelledby="hero-title" class="relative overflow-x-clip px-4 pt-36 pb-16 sm:pt-44">
+      <div class="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+        <div class="text-center lg:text-left">
+          <div class="reveal glass inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold text-brand">
+            <span class="relative flex h-2 w-2"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-60"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-brand"></span></span>
+            Live in production · Azure Kubernetes Service
+          </div>
 
-        <rect class="box" x="20" y="210" width="140" height="52" rx="8"></rect>
-        <text class="boxlabel" x="90" y="232" text-anchor="middle">Admin console</text>
-        <text class="boxsub" x="90" y="248" text-anchor="middle">RBAC / audit</text>
+          <h1 id="hero-title" class="reveal mt-6 text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] text-ink sm:text-6xl">
+            Staffing operations, end to end. <span class="text-gradient">Run by people and AI agents together.</span>
+          </h1>
 
-        <rect class="box" x="230" y="118" width="150" height="56" rx="8"></rect>
-        <text class="boxlabel" x="305" y="141" text-anchor="middle">NestJS API</text>
-        <text class="boxsub" x="305" y="158" text-anchor="middle">16 modules</text>
+          <p class="reveal mx-auto mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg lg:mx-0">
+            <strong class="font-semibold text-ink">Worq<span class="text-brand">360</span></strong> is a production staffing and vendor management platform. It covers onboarding, client assignments, timesheets, invoicing, compliance and recruiting. On top sits a <strong class="font-semibold text-ink">LangGraph multi-agent AI layer</strong> that can do the work, and a human approves every change.
+          </p>
 
-        <rect class="box" x="450" y="118" width="130" height="56" rx="8"></rect>
-        <text class="boxlabel" x="515" y="141" text-anchor="middle">PostgreSQL</text>
-        <text class="boxsub" x="515" y="158" text-anchor="middle">TypeORM</text>
+          <div class="reveal mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
+            <a href="#ai" class="btn-brand group inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold text-white transition hover:-translate-y-0.5 sm:w-auto">
+              <i data-lucide="bot" class="h-4 w-4"></i> Explore the AI Agents
+              <i data-lucide="arrow-right" class="h-4 w-4 transition group-hover:translate-x-1"></i>
+            </a>
+            <a href="#architecture" class="glass inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold text-ink transition hover:-translate-y-0.5 sm:w-auto">
+              <i data-lucide="layers" class="h-4 w-4"></i> View Architecture
+            </a>
+          </div>
 
-        <rect class="box" x="450" y="20" width="150" height="56" rx="8"></rect>
-        <text class="boxlabel" x="525" y="43" text-anchor="middle">Agent orchestrator</text>
-        <text class="boxsub" x="525" y="60" text-anchor="middle">LangGraph</text>
+          <dl class="reveal mt-10 grid grid-cols-2 gap-3 text-left sm:grid-cols-4">
+            <div class="glass rounded-2xl p-3"><dt class="text-[11px] font-medium text-muted">Backend modules</dt><dd class="stat-value mt-0.5 text-xl font-extrabold">37</dd></div>
+            <div class="glass rounded-2xl p-3"><dt class="text-[11px] font-medium text-muted">AI domain agents</dt><dd class="stat-value mt-0.5 text-xl font-extrabold">10</dd></div>
+            <div class="glass rounded-2xl p-3"><dt class="text-[11px] font-medium text-muted">MCP tools</dt><dd class="stat-value mt-0.5 text-xl font-extrabold">140+</dd></div>
+            <div class="glass rounded-2xl p-3"><dt class="text-[11px] font-medium text-muted">User roles</dt><dd class="stat-value mt-0.5 text-xl font-extrabold">6 + <span class="text-sm">custom</span></dd></div>
+          </dl>
+        </div>
 
-        <rect class="agentbox" x="660" y="8" width="180" height="20" rx="5"></rect>
-        <text class="agentlabel" x="750" y="22" text-anchor="middle">8 domain agents · MCP · A2A</text>
-        <rect class="agentbox" x="660" y="34" width="180" height="20" rx="5"></rect>
-        <text class="agentlabel" x="750" y="48" text-anchor="middle">semantic agent memory</text>
+        <!-- 360 orbit visual -->
+        <div class="reveal flex justify-center" aria-hidden="true">
+          <div class="orbit">
+            <div class="absolute inset-0 rounded-full border border-line"></div>
+            <div class="absolute inset-[14%] rounded-full border border-dashed border-brand/25"></div>
+            <svg class="absolute inset-0 h-full w-full animate-ring" viewBox="0 0 100 100">
+              <defs>
+                <linearGradient id="ringGrad" x1="0" x2="1" y1="0" y2="1">
+                  <stop offset="0" stop-color="#C41515"/><stop offset=".55" stop-color="#E53535"/><stop offset="1" stop-color="#9B9B9B"/>
+                </linearGradient>
+              </defs>
+              <circle cx="50" cy="50" r="49" fill="none" stroke="url(#ringGrad)" stroke-width=".7" stroke-dasharray="210 98" stroke-linecap="round"/>
+            </svg>
 
-        <path class="edge" d="M160,56 C195,56 195,146 230,146"></path>
-        <path class="edge" d="M160,236 C195,236 195,160 230,160"></path>
-        <path class="edge" d="M380,146 L450,146"></path>
-        <path class="edge" d="M380,138 C410,110 420,60 450,50"></path>
-        <path class="edge" d="M600,48 L660,48"></path>
-      </svg>
-    </div>
-  </section>
+            <!-- Core: the Worq360 mark -->
+            <div class="glass-strong absolute inset-[31%] grid place-items-center rounded-full">
+              <div class="text-center">
+                <svg class="mx-auto h-11 w-11 sm:h-14 sm:w-14" viewBox="0 0 120 120">
+                  <rect width="120" height="120" rx="28" fill="#C41515"/>
+                  <circle cx="60" cy="37" r="14" fill="#fff"/>
+                  <path d="M22 88Q60 48 98 88" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+                  <path d="M32 102Q60 76 88 102" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="7" stroke-linecap="round"/>
+                </svg>
+                <div class="mt-2 text-[10px] font-semibold uppercase tracking-[.2em] text-muted">360° workforce</div>
+              </div>
+            </div>
 
-  <section>
-    <div class="head-row"><h2>Module registry</h2><span class="idx">16 modules · 4 domains</span></div>
-    <div class="domain-block">
-      <span class="domain-tag">Workforce ops</span>
-      <table class="registry">
-        <tr><td class="mod">Employee lifecycle<span class="code">EMP-xxxx</span></td>
-          <td class="desc">Onboarding through a four-condition <b>Final Activation</b> gate (onboarding status, I-9, E-Verify, tax ID, and ≥1 completed assignment) before an employee is billable.</td></tr>
-        <tr><td class="mod">Clients &amp; assignments<span class="code"></span></td>
-          <td class="desc">Client roster and placement/assignment tracking that timesheets and invoices key off of downstream.</td></tr>
-        <tr><td class="mod">Timesheets<span class="code">TSH-xxxx</span></td>
-          <td class="desc">Period-based submission (start date + period length) gated behind a required client-approval screenshot upload — enforced client-side and re-validated server-side.</td></tr>
-        <tr><td class="mod">Holidays &amp; alerts<span class="code"></span></td>
-          <td class="desc">Role-scoped holiday calendar feeding timesheet highlighting, plus a daily cron job evaluating alert conditions across the platform.</td></tr>
-      </table>
-    </div>
-    <div class="domain-block">
-      <span class="domain-tag">Finance</span>
-      <table class="registry">
-        <tr><td class="mod">Invoicing<span class="code">INV-xxxx</span></td>
-          <td class="desc">Billing-period invoices generated only from timesheets that are approved and matched to the same client — prevents cross-client or unapproved billing.</td></tr>
-        <tr><td class="mod">Expenses<span class="code">EXP-xxxx</span></td>
-          <td class="desc">Categorized claims (transport, accommodation, meals, supplies, training, other) scoped to the submitting employee, routed through the same rules engine as timesheets.</td></tr>
-        <tr><td class="mod">Reports<span class="code"></span></td>
-          <td class="desc">Cross-module CSV export pipeline for finance and operations reporting.</td></tr>
-      </table>
-    </div>
-    <div class="domain-block">
-      <span class="domain-tag">Talent</span>
-      <table class="registry">
-        <tr><td class="mod">Recruitment / ATS<span class="code"></span></td>
-          <td class="desc">Job postings, candidates, and applications, with a public unauthenticated <span class="mono">/apply</span> endpoint feeding directly into the internal pipeline.</td></tr>
-        <tr><td class="mod">Bench sales &amp; training<span class="code"></span></td>
-          <td class="desc">A 12-table subsystem covering OPT candidates, hotlists, vendor submissions, mail blasts, training courses, and tokenized public feedback forms — no login required for external respondents.</td></tr>
-      </table>
-    </div>
-    <div class="domain-block">
-      <span class="domain-tag">Platform</span>
-      <table class="registry">
-        <tr><td class="mod">Configurable RBAC<span class="code"></span></td>
-          <td class="desc">Roles and their permission-key grants are admin-editable records, not compiled checks — new roles ship with zero deploys.</td></tr>
-        <tr><td class="mod">Business rules engine<span class="code"></span></td>
-          <td class="desc">Evaluates timesheet/expense submissions through an LLM call, returning typed <span class="mono">{blocking[], warnings[]}</span> before a state transition is allowed.</td></tr>
-        <tr><td class="mod">Notifications<span class="code"></span></td>
-          <td class="desc">A dedicated WebSocket namespace pushing real-time updates alongside the REST API.</td></tr>
-        <tr><td class="mod">Audit &amp; announcements<span class="code"></span></td>
-          <td class="desc">Org-wide event log and announcement broadcast, both role-visibility aware.</td></tr>
-        <tr><td class="mod">Tickets + GitHub sync<span class="code"></span></td>
-          <td class="desc">HMAC-signed GitHub webhook integration with a 15-minute cron fallback and a manual sync endpoint, so ticket state never silently drifts from the repo.</td></tr>
-        <tr><td class="mod">Document storage<span class="code"></span></td>
-          <td class="desc">Healthcare-plan PDFs and other documents in blob storage, served through time-boxed (1-hour) signed URLs rather than public paths.</td></tr>
-        <tr><td class="mod">AI chat assistant<span class="code"></span></td>
-          <td class="desc">A role-aware in-app assistant with a rate-limited LLM gateway, generating its own knowledge/help content per role from a single source of navigation truth.</td></tr>
-      </table>
-    </div>
-  </section>
-
-  <section>
-    <div class="head-row"><h2>Engineering deep-dives</h2><span class="idx">05 hard problems</span></div>
-    <div class="dive-grid">
-      <div class="dive">
-        <span class="dive-label">rbac</span>
-        <div>
-          <h3>Permissions as data, not code</h3>
-          <p>Six default roles ship, but every role's permission-key set is admin-editable at
-            runtime through a dedicated roles module. The alternative — permission checks
-            hardcoded per endpoint — was rejected early because staffing orgs redefine who can
-            see what constantly; that decision paid off across every later module.</p>
+            <!-- Orbiting modules -->
+            <!-- Chips travel around the ring but never rotate, so labels stay upright (positioned by script) -->
+            <div class="orbit-track" id="orbitTrack">
+              <div class="orbit-chip" data-angle="0"><span class="glass-strong flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold text-ink"><i data-lucide="user-round-plus" class="h-3.5 w-3.5 text-brand"></i>Onboarding</span></div>
+              <div class="orbit-chip" data-angle="60"><span class="glass-strong flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold text-ink"><i data-lucide="clock-4" class="h-3.5 w-3.5 text-brand"></i>Timesheets</span></div>
+              <div class="orbit-chip" data-angle="120"><span class="glass-strong flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold text-ink"><i data-lucide="receipt-text" class="h-3.5 w-3.5 text-brand"></i>Invoicing</span></div>
+              <div class="orbit-chip" data-angle="180"><span class="glass-strong flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold text-ink"><i data-lucide="shield-check" class="h-3.5 w-3.5 text-brand"></i>Compliance</span></div>
+              <div class="orbit-chip" data-angle="240"><span class="glass-strong flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold text-ink"><i data-lucide="briefcase-business" class="h-3.5 w-3.5 text-brand"></i>Recruiting</span></div>
+              <div class="orbit-chip" data-angle="300"><span class="glass-strong flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold text-ink"><i data-lucide="bot" class="h-3.5 w-3.5 text-brand"></i>AI Agents</span></div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="dive">
-        <span class="dive-label">agents</span>
-        <div>
-          <h3>Eight-agent orchestration layer</h3>
-          <p>A LangGraph orchestrator classifies intent and routes to eight domain agents
-            (onboarding, time &amp; expense, support, admin, devops, and others) each backed by
-            its own MCP tool server. Agents interoperate over Google's A2A protocol and share a
-            semantic long-term memory with an automatic-extraction, dedup-on-write pipeline.</p>
-          <p>The hard part wasn't any single agent — it was keeping the orchestrator's routing
-            prompt in sync as tools were added to individual agents, since a mismatch only
-            surfaces as live requests silently misrouting.</p>
+
+      <!-- Product tour: app-styled preview (charcoal sidebar, light content) -->
+      <figure class="reveal relative mx-auto mt-20 max-w-5xl">
+        <div class="glass-strong overflow-hidden rounded-2xl">
+          <div class="flex items-center gap-3 border-b border-line/70 px-4 py-3">
+            <div class="flex gap-1.5"><span class="h-3 w-3 rounded-full bg-[#FF5F57]"></span><span class="h-3 w-3 rounded-full bg-[#FEBC2E]"></span><span class="h-3 w-3 rounded-full bg-[#28C840]"></span></div>
+            <div class="mx-auto flex items-center gap-2 rounded-md bg-page px-3 py-1 text-[11px] text-muted">
+              <i data-lucide="lock" class="h-3 w-3"></i> worq360.sdvstech.com/dashboard/admin
+            </div>
+            <span class="hidden text-[11px] text-muted sm:inline">product tour</span>
+          </div>
+
+          <div id="videoFrame" class="relative aspect-video w-full bg-page">
+            <div class="absolute inset-0 flex">
+              <aside class="band hidden w-44 shrink-0 p-3 text-left sm:block">
+                <div class="mb-4 flex items-center gap-1.5 text-xs font-bold text-white">
+                  <svg class="h-5 w-5" viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" rx="28" fill="#C41515"/><circle cx="60" cy="37" r="14" fill="#fff"/><path d="M22 88Q60 48 98 88" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/></svg>
+                  Worq<span class="text-ember">360</span>
+                </div>
+                <div class="space-y-1 text-[11px]">
+                  <div class="flex items-center gap-2 rounded-md bg-[#C41515] px-2 py-1.5 font-semibold text-white"><i data-lucide="layout-dashboard" class="h-3.5 w-3.5"></i>Dashboard</div>
+                  <div class="flex items-center gap-2 px-2 py-1.5 text-white/60"><i data-lucide="users" class="h-3.5 w-3.5"></i>Employees</div>
+                  <div class="flex items-center gap-2 px-2 py-1.5 text-white/60"><i data-lucide="clock-4" class="h-3.5 w-3.5"></i>Timesheets</div>
+                  <div class="flex items-center gap-2 px-2 py-1.5 text-white/60"><i data-lucide="receipt-text" class="h-3.5 w-3.5"></i>Invoices</div>
+                  <div class="flex items-center gap-2 px-2 py-1.5 text-white/60"><i data-lucide="shield-check" class="h-3.5 w-3.5"></i>Compliance</div>
+                  <div class="flex items-center gap-2 px-2 py-1.5 text-white/60"><i data-lucide="sparkles" class="h-3.5 w-3.5"></i>AskMe</div>
+                </div>
+              </aside>
+              <div class="flex-1 p-3 text-left sm:p-5">
+                <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                  <div class="glass rounded-xl p-2.5 sm:p-3"><div class="flex items-center gap-1.5"><span class="ic ic-blue h-5 w-5 !rounded-md"><i data-lucide="briefcase" class="h-3 w-3"></i></span><span class="text-[10px] text-muted">Active assignments</span></div><div class="stat-value mt-1.5 text-base font-extrabold sm:text-xl">128</div></div>
+                  <div class="glass rounded-xl p-2.5 sm:p-3"><div class="flex items-center gap-1.5"><span class="ic ic-amber h-5 w-5 !rounded-md"><i data-lucide="clock-4" class="h-3 w-3"></i></span><span class="text-[10px] text-muted">To approve</span></div><div class="stat-value mt-1.5 text-base font-extrabold sm:text-xl">12</div></div>
+                  <div class="glass rounded-xl p-2.5 sm:p-3"><div class="flex items-center gap-1.5"><span class="ic ic-red h-5 w-5 !rounded-md"><i data-lucide="plane" class="h-3 w-3"></i></span><span class="text-[10px] text-muted">Expiring visas</span></div><div class="stat-value mt-1.5 text-base font-extrabold sm:text-xl">3</div></div>
+                </div>
+                <div class="glass mt-3 flex h-[48%] items-end gap-1.5 rounded-xl p-3">
+                  <span class="flex-1 rounded-t bg-[#C41515]/25" style="height:40%"></span>
+                  <span class="flex-1 rounded-t bg-[#C41515]/35" style="height:55%"></span>
+                  <span class="flex-1 rounded-t bg-[#C41515]/30" style="height:48%"></span>
+                  <span class="flex-1 rounded-t bg-[#C41515]/50" style="height:70%"></span>
+                  <span class="flex-1 rounded-t bg-[#C41515]/40" style="height:62%"></span>
+                  <span class="flex-1 rounded-t bg-[#C41515]/65" style="height:82%"></span>
+                  <span class="flex-1 rounded-t bg-[#C41515]/85" style="height:92%"></span>
+                  <span class="flex-1 rounded-t bg-[#C41515]/55" style="height:74%"></span>
+                </div>
+              </div>
+            </div>
+            <button id="playBtn" type="button" class="absolute inset-0 grid place-items-center bg-charcoal-dk/35 transition hover:bg-charcoal-dk/15" aria-label="Play Worq360 walkthrough">
+              <span class="flex flex-col items-center gap-3">
+                <span class="btn-brand relative grid h-16 w-16 place-items-center rounded-full text-white sm:h-20 sm:w-20">
+                  <span class="absolute inset-0 animate-ping rounded-full bg-[#E53535]/30"></span>
+                  <i data-lucide="play" class="relative h-6 w-6 translate-x-0.5 fill-current sm:h-7 sm:w-7"></i>
+                </span>
+                <span id="playLabel" class="rounded-full bg-charcoal/85 px-3 py-1 text-xs font-medium text-white">Watch the guided product tour</span>
+              </span>
+            </button>
+          </div>
+        </div>
+        <figcaption id="videoCaption" class="mt-4 text-center text-xs text-muted">Illustrative dashboard preview. A recorded walkthrough is available on request.</figcaption>
+      </figure>
+    </section>
+
+    <!-- 2. PLATFORM -->
+    <section id="platform" aria-labelledby="cap-title" class="px-4 py-24">
+      <div class="mx-auto max-w-6xl">
+        <div class="reveal max-w-2xl">
+          <p class="text-sm font-bold uppercase tracking-widest text-brand">The Platform</p>
+          <h2 id="cap-title" class="mt-3 text-3xl font-extrabold tracking-[-0.03em] text-ink sm:text-5xl">From the offer letter to the paid invoice.</h2>
+          <p class="mt-4 text-muted">Every staffing workflow runs on one platform. Each one has its own state machine, permissions and audit trail, and six roles each get a view scoped to them, from admin and HR/finance down to employees and client approvers.</p>
+        </div>
+
+        <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <article class="reveal card-hover glass rounded-2xl p-7">
+            <span class="ic ic-red h-12 w-12"><i data-lucide="user-round-plus" class="h-6 w-6"></i></span>
+            <h3 class="mt-6 text-xl font-bold text-ink">Employee Onboarding &amp; Records</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted">A seven-tab onboarding profile, plus quick add and bulk CSV import. Uploaded documents are read by AI, and an employee can only be activated once four conditions pass. The document vault keeps versions, and offers are signed electronically.</p>
+            <ul class="mt-5 flex flex-wrap gap-2 text-[11px] font-medium text-body">
+              <li class="rounded-md bg-page px-2 py-1">Document vault</li><li class="rounded-md bg-page px-2 py-1">E-signatures</li><li class="rounded-md bg-page px-2 py-1">Benefits &amp; 401(k)</li>
+            </ul>
+          </article>
+
+          <article class="reveal card-hover glass rounded-2xl p-7">
+            <span class="ic ic-blue h-12 w-12"><i data-lucide="clock-4" class="h-6 w-6"></i></span>
+            <h3 class="mt-6 text-xl font-bold text-ink">AI-Verified Timesheets</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted">Employees submit weekly time with a screenshot from the client's system. Claude Vision reads the screenshot, and the timesheet can't be submitted unless the hours match exactly. Holidays are tagged automatically, and approvals move from manager to client PM.</p>
+            <ul class="mt-5 flex flex-wrap gap-2 text-[11px] font-medium text-body">
+              <li class="rounded-md bg-page px-2 py-1">Vision hour-matching</li><li class="rounded-md bg-page px-2 py-1">Approval chain</li><li class="rounded-md bg-page px-2 py-1">PDF export</li>
+            </ul>
+          </article>
+
+          <article class="reveal card-hover glass rounded-2xl p-7">
+            <span class="ic ic-green h-12 w-12"><i data-lucide="receipt-text" class="h-6 w-6"></i></span>
+            <h3 class="mt-6 text-xl font-bold text-ink">Invoicing &amp; Expenses</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted">Invoices are generated from approved timesheets, with discounts, a client approval flow and PDF output. Expense claims carry receipt uploads and go through reimbursement. Reports cover utilisation, profitability and financial summaries.</p>
+            <ul class="mt-5 flex flex-wrap gap-2 text-[11px] font-medium text-body">
+              <li class="rounded-md bg-page px-2 py-1">Client approvals</li><li class="rounded-md bg-page px-2 py-1">Receipts</li><li class="rounded-md bg-page px-2 py-1">Payroll export API</li>
+            </ul>
+          </article>
+
+          <article class="reveal card-hover glass rounded-2xl p-7">
+            <span class="ic ic-amber h-12 w-12"><i data-lucide="shield-check" class="h-6 w-6"></i></span>
+            <h3 class="mt-6 text-xl font-bold text-ink">Compliance &amp; Alerts</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted">The I-9 workflow tracks each case from initiation to approval, alongside E-Verify. Assignments can't start without an MSA and SOW, and visas are checked on approval. Daily jobs warn about expiring visas, passports, I-94s and driver's licences.</p>
+            <ul class="mt-5 flex flex-wrap gap-2 text-[11px] font-medium text-body">
+              <li class="rounded-md bg-page px-2 py-1">I-9 / E-Verify</li><li class="rounded-md bg-page px-2 py-1">Expiry alerts</li><li class="rounded-md bg-page px-2 py-1">Rules engine</li>
+            </ul>
+          </article>
+
+          <article class="reveal card-hover glass rounded-2xl p-7">
+            <span class="ic ic-violet h-12 w-12"><i data-lucide="briefcase-business" class="h-6 w-6"></i></span>
+            <h3 class="mt-6 text-xl font-bold text-ink">Recruiting, ATS &amp; Bench Sales</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted">Covers job requisitions, candidates and interviews, job board postings and VMS submissions. Recruiters also get mass mail campaigns, bench hotlists, targets and a training course catalogue.</p>
+            <ul class="mt-5 flex flex-wrap gap-2 text-[11px] font-medium text-body">
+              <li class="rounded-md bg-page px-2 py-1">ATS</li><li class="rounded-md bg-page px-2 py-1">VMS submissions</li><li class="rounded-md bg-page px-2 py-1">Hotlists</li>
+            </ul>
+          </article>
+
+          <article class="reveal card-hover glass rounded-2xl p-7">
+            <span class="ic ic-slate h-12 w-12"><i data-lucide="key-round" class="h-6 w-6"></i></span>
+            <h3 class="mt-6 text-xl font-bold text-ink">Configurable RBAC &amp; Audit</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted">Admins create custom roles from a live permission catalog, and that catalog decides which menu items each person sees. Each person's access is checked on every API request. Every state-changing action is written to the audit log.</p>
+            <ul class="mt-5 flex flex-wrap gap-2 text-[11px] font-medium text-body">
+              <li class="rounded-md bg-page px-2 py-1">Custom roles</li><li class="rounded-md bg-page px-2 py-1">Self-scoped data</li><li class="rounded-md bg-page px-2 py-1">Full audit log</li>
+            </ul>
+          </article>
         </div>
       </div>
-      <div class="dive">
-        <span class="dive-label">rules</span>
-        <div>
-          <h3>LLM-gated state transitions</h3>
-          <p>Timesheet and expense submission isn't a static form validator — it calls an LLM to
-            evaluate business-rule conditions and returns blocking vs. warning-level findings,
-            so rule logic can evolve without a backend redeploy.</p>
+    </section>
+
+    <!-- 3. AI & AGENTS — charcoal band, like the app's sidebar and boot splash -->
+    <section id="ai" aria-labelledby="ai-title" class="band relative overflow-hidden px-4 py-24 text-white/75">
+      <div aria-hidden="true" class="pointer-events-none absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-[#C41515]/20 blur-[140px]"></div>
+      <div class="relative mx-auto max-w-6xl">
+        <div class="reveal max-w-3xl">
+          <p class="text-sm font-bold uppercase tracking-widest text-ember">AI &amp; Agents</p>
+          <h2 id="ai-title" class="mt-3 text-3xl font-extrabold tracking-[-0.03em] text-white sm:text-5xl">AI that does the work, <span class="text-gradient-ember">with a human approving every change.</span></h2>
+          <p class="mt-4 text-white/60">Worq360 has two AI surfaces. <strong class="text-white">AskMe</strong> is built into the app for questions, data lookups and document auto-fill. The standalone <strong class="text-white">Agentic App</strong> is a Python multi-agent system: ten specialist LangGraph agents that call more than 140 tools through the Model Context Protocol. Agents can read anything the user is allowed to see. Before any write, the agent stops and waits for a human to approve it.</p>
+        </div>
+
+        <!-- Stack chips -->
+        <div class="reveal mt-8 flex flex-wrap gap-2 text-xs text-white/85">
+          <span class="band-card inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="git-fork" class="h-3.5 w-3.5 text-ember"></i>LangGraph</span>
+          <span class="band-card inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="link" class="h-3.5 w-3.5 text-ember"></i>LangChain</span>
+          <span class="band-card inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="sparkles" class="h-3.5 w-3.5 text-ember"></i>Anthropic Claude</span>
+          <span class="band-card inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="plug-zap" class="h-3.5 w-3.5 text-ember"></i>MCP · FastMCP</span>
+          <span class="band-card inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="arrow-left-right" class="h-3.5 w-3.5 text-ember"></i>A2A protocol</span>
+          <span class="band-card inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="zap" class="h-3.5 w-3.5 text-ember"></i>FastAPI</span>
+          <span class="band-card inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="database" class="h-3.5 w-3.5 text-ember"></i>pgvector</span>
+          <span class="band-card inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="waypoints" class="h-3.5 w-3.5 text-ember"></i>Voyage embeddings</span>
+          <span class="band-card inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="activity" class="h-3.5 w-3.5 text-ember"></i>LangSmith</span>
+          <span class="band-card inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="server" class="h-3.5 w-3.5 text-ember"></i>Ollama · Qwen3</span>
+        </div>
+
+        <!-- Agent graph + HITL demo -->
+        <div class="mt-12 grid gap-6 lg:grid-cols-5">
+
+          <!-- LangGraph orchestration -->
+          <div class="reveal lg:col-span-3">
+            <div class="band-card h-full rounded-2xl p-5 sm:p-7">
+              <div class="mb-5 flex flex-wrap items-center justify-between gap-2">
+                <p class="text-sm font-bold text-white">LangGraph multi-agent graph</p>
+                <span class="font-mono text-[11px] text-ember">agent-service · orchestrator.py</span>
+              </div>
+
+              <ol class="space-y-2.5" aria-label="Agent graph stages">
+                <li class="flex items-center gap-3 rounded-xl bg-white/[.04] p-3">
+                  <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#F2463F]/15 text-ember"><i data-lucide="route" class="h-4 w-4"></i></span>
+                  <div><p class="text-sm font-semibold text-white">Orchestrator</p><p class="text-xs text-white/50">A small, cheap model reads the request and routes it to one domain, filtered by the user's role</p></div>
+                </li>
+                <li class="flex items-center gap-3 rounded-xl bg-white/[.04] p-3">
+                  <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#F2463F]/15 text-ember"><i data-lucide="brain" class="h-4 w-4"></i></span>
+                  <div><p class="text-sm font-semibold text-white">Memory retrieve</p><p class="text-xs text-white/50">Adds relevant long-term memories from past conversations (pgvector search) to the prompt</p></div>
+                </li>
+                <li class="rounded-xl bg-white/[.04] p-3">
+                  <p class="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-white/45">10 domain agents · ReAct tool loops · select one</p>
+                  <div id="agentChips" class="grid grid-cols-2 gap-2 sm:grid-cols-5"></div>
+                  <div id="agentDetail" class="mt-3 rounded-lg border border-[#F2463F]/25 bg-[#F2463F]/[.07] p-3 text-sm" aria-live="polite"></div>
+                </li>
+                <li class="flex items-center gap-3 rounded-xl bg-white/[.04] p-3">
+                  <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#F2463F]/15 text-ember"><i data-lucide="boxes" class="h-4 w-4"></i></span>
+                  <div><p class="text-sm font-semibold text-white">Entity extract → continuation</p><p class="text-xs text-white/50">Records fetched in one domain are cached so the next agent can use them. If the request needs another domain, the graph hops again, up to 3 times</p></div>
+                </li>
+              </ol>
+            </div>
+          </div>
+
+          <!-- HITL demo -->
+          <div class="reveal lg:col-span-2">
+            <div class="band-card h-full rounded-2xl p-5">
+              <div class="mb-4 flex items-center justify-between">
+                <p class="text-sm font-bold text-white">Human-in-the-loop, live</p>
+                <button id="hitlReplay" type="button" class="inline-flex items-center gap-1 rounded-md bg-white/5 px-2 py-1 text-[11px] text-white/70 hover:bg-white/10"><i data-lucide="rotate-ccw" class="h-3 w-3"></i>Replay</button>
+              </div>
+              <div class="space-y-3 text-sm" aria-live="polite">
+                <div class="step ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-sm bg-[#C41515] px-3.5 py-2 text-white" data-step>Send invoice INV-0042 to the client</div>
+                <div class="step rounded-xl border border-white/5 bg-black/20 p-3 font-mono text-[11px] leading-6 text-white/55" data-step>
+                  <div><span class="text-ember">▸</span> orchestrator → <span class="text-white">finance_agent</span></div>
+                  <div><span class="text-ember">▸</span> mcp-finance · <span class="text-white">invoice_get</span> <span class="text-[#6BC46D]">✓</span></div>
+                  <div><span class="text-[#FBBF24]">⏸</span> mcp-finance · <span class="text-white">invoice_send</span> · interrupt()</div>
+                </div>
+                <div class="step rounded-xl border border-[#FBBF24]/30 bg-[#FBBF24]/[.07] p-3.5" data-step>
+                  <p class="flex items-center gap-1.5 text-xs font-semibold text-[#FCD34D]"><i data-lucide="hand" class="h-3.5 w-3.5"></i>Approval required</p>
+                  <p class="mt-1.5 text-white/90">Send invoice INV-0042 to the client?</p>
+                  <div id="hitlButtons" class="mt-3 flex gap-2">
+                    <button type="button" data-hitl="approve" class="btn-brand inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white"><i data-lucide="check" class="h-3.5 w-3.5"></i>Approve</button>
+                    <button type="button" data-hitl="reject" class="inline-flex items-center gap-1 rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/15"><i data-lucide="x" class="h-3.5 w-3.5"></i>Reject</button>
+                  </div>
+                  <p id="hitlResult" class="mt-3 hidden text-xs"></p>
+                </div>
+              </div>
+              <p class="mt-4 text-[11px] leading-relaxed text-white/45">The LangGraph task pauses in the <code class="text-white/80">input-required</code> state, saved in a Postgres checkpoint, until someone approves or rejects it. Small invoices and expenses can be auto-approved below a dollar limit the admin sets. If that limit can't be checked, the agent asks for approval anyway.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI capabilities grid -->
+        <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <article class="reveal band-card card-hover rounded-2xl p-6">
+            <span class="grid h-11 w-11 place-items-center rounded-xl bg-[#F2463F]/15 text-ember"><i data-lucide="plug-zap" class="h-5 w-5"></i></span>
+            <h3 class="mt-5 font-bold text-white">10 MCP tool servers</h3>
+            <p class="mt-2 text-sm text-white/60">FastMCP servers for HR, finance, recruitment, compliance, support, DevOps, budget, security, read-only SQL and external APIs. They call the same REST API the app's own screens use, so agents get no hidden backdoor.</p>
+          </article>
+          <article class="reveal band-card card-hover rounded-2xl p-6">
+            <span class="grid h-11 w-11 place-items-center rounded-xl bg-[#F2463F]/15 text-ember"><i data-lucide="arrow-left-right" class="h-5 w-5"></i></span>
+            <h3 class="mt-5 font-bold text-white">Google A2A protocol</h3>
+            <p class="mt-2 text-sm text-white/60">A JSON-RPC 2.0 API with <code class="text-white/85">tasks/send</code>, <code class="text-white/85">sendSubscribe</code> for streaming, <code class="text-white/85">get</code> and <code class="text-white/85">cancel</code>. An AgentCard lets clients discover the agents, and SSE streams each step live to the Agent Activity panel.</p>
+          </article>
+          <article class="reveal band-card card-hover rounded-2xl p-6">
+            <span class="grid h-11 w-11 place-items-center rounded-xl bg-[#F2463F]/15 text-ember"><i data-lucide="fingerprint" class="h-5 w-5"></i></span>
+            <h3 class="mt-5 font-bold text-white">Agents act as the user</h3>
+            <p class="mt-2 text-sm text-white/60">The user's own JWT is passed through every MCP call to the API, so an agent can never see or do more than the person chatting. The token is removed before the tool's input is checked, so the model never sees it.</p>
+          </article>
+          <article class="reveal band-card card-hover rounded-2xl p-6">
+            <span class="grid h-11 w-11 place-items-center rounded-xl bg-[#F2463F]/15 text-ember"><i data-lucide="brain" class="h-5 w-5"></i></span>
+            <h3 class="mt-5 font-bold text-white">Long-term semantic memory</h3>
+            <p class="mt-2 text-sm text-white/60">After each conversation, the agent saves useful facts, such as a client's preferences and standing instructions, as Voyage embeddings in pgvector. Near-duplicates (cosine ≥ 0.92) strengthen an existing memory instead of adding a new one. The owner of each memory is set by the server, never by the model.</p>
+          </article>
+          <article class="reveal band-card card-hover rounded-2xl p-6">
+            <span class="grid h-11 w-11 place-items-center rounded-xl bg-[#F2463F]/15 text-ember"><i data-lucide="book-open-text" class="h-5 w-5"></i></span>
+            <h3 class="mt-5 font-bold text-white">RAG with citations</h3>
+            <p class="mt-2 text-sm text-white/60">AskMe answers questions from help docs and from published company documents such as policies, the handbook and benefits guides. Each answer cites the document and page, and only documents meant for the asker's role are used.</p>
+          </article>
+          <article class="reveal band-card card-hover rounded-2xl p-6">
+            <span class="grid h-11 w-11 place-items-center rounded-xl bg-[#F2463F]/15 text-ember"><i data-lucide="table-2" class="h-5 w-5"></i></span>
+            <h3 class="mt-5 font-bold text-white">Natural language → SQL</h3>
+            <p class="mt-2 text-sm text-white/60">Ask about your data in plain English. The question becomes a parameterized, read-only SQL query through a dedicated MCP server, and AskMe's Data mode uses tool calling for scoped lookups.</p>
+          </article>
+          <article class="reveal band-card card-hover rounded-2xl p-6">
+            <span class="grid h-11 w-11 place-items-center rounded-xl bg-[#F2463F]/15 text-ember"><i data-lucide="scan-eye" class="h-5 w-5"></i></span>
+            <h3 class="mt-5 font-bold text-white">Vision &amp; document extraction</h3>
+            <p class="mt-2 text-sm text-white/60">Claude Vision checks timesheet hours against client screenshots. It also pulls fields out of uploaded IDs, contracts and SOWs, classifies document types, and fills in forms automatically.</p>
+          </article>
+          <article class="reveal band-card card-hover rounded-2xl p-6">
+            <span class="grid h-11 w-11 place-items-center rounded-xl bg-[#F2463F]/15 text-ember"><i data-lucide="radar" class="h-5 w-5"></i></span>
+            <h3 class="mt-5 font-bold text-white">Proactive agents</h3>
+            <p class="mt-2 text-sm text-white/60">The Budget and Security agents scan every day. They pull Azure Cost Management data, Dependabot and CodeQL findings, and resource usage. Then they raise savings and security recommendations and alert on cost spikes, without anyone asking.</p>
+          </article>
+          <article class="reveal band-card card-hover rounded-2xl p-6">
+            <span class="grid h-11 w-11 place-items-center rounded-xl bg-[#F2463F]/15 text-ember"><i data-lucide="gavel" class="h-5 w-5"></i></span>
+            <h3 class="mt-5 font-bold text-white">LLM business rules engine</h3>
+            <p class="mt-2 text-sm text-white/60">Admins write business rules in plain English, and Claude Haiku checks submissions against them. A blocking rule stops a timesheet or expense from being submitted (HTTP 422).</p>
+          </article>
+        </div>
+
+        <!-- Reliability + AI-native delivery -->
+        <div class="mt-6 grid gap-5 lg:grid-cols-2">
+          <div class="reveal band-card rounded-2xl p-6">
+            <p class="flex items-center gap-2 text-sm font-bold text-white"><i data-lucide="gauge" class="h-4 w-4 text-ember"></i>Cost, reliability &amp; observability</p>
+            <ul class="mt-4 space-y-2.5 text-sm text-white/60">
+              <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-ember"></i>Anthropic prompt caching on agent system prompts and tool lists</li>
+              <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-ember"></i>A smaller, cheaper model handles routing and memory extraction</li>
+              <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-ember"></i>Claude is the main model, with an optional self-hosted Qwen3 fallback through Ollama</li>
+              <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-ember"></i>Rate limits of 60 requests per user per hour and 600 overall, checked before a stream opens</li>
+              <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-ember"></i>Every agent run is traced in LangSmith</li>
+            </ul>
+          </div>
+          <div class="reveal band-card rounded-2xl p-6">
+            <p class="flex items-center gap-2 text-sm font-bold text-white"><i data-lucide="factory" class="h-4 w-4 text-ember"></i>AI in the delivery pipeline</p>
+            <ul class="mt-4 space-y-2.5 text-sm text-white/60">
+              <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-ember"></i><span><strong class="text-white/90">Feature Factory:</strong> a 9-agent Claude Code pipeline (research → story → plan → backend → frontend → tests → validate → deploy) with three points where a human signs off</span></li>
+              <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-ember"></i><span><strong class="text-white/90">Sentry → GitHub triage:</strong> production errors arrive by webhook, duplicates are merged, and a GitHub issue is opened automatically</span></li>
+              <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-ember"></i><span><strong class="text-white/90">IT tickets from chat:</strong> tickets open GitHub issues and close themselves when the issue is closed (HMAC-signed webhook)</span></li>
+              <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-ember"></i><span><strong class="text-white/90">AskMe stays current:</strong> CI fails if a new route has no help doc or What's New note</span></li>
+            </ul>
+          </div>
         </div>
       </div>
-      <div class="dive">
-        <span class="dive-label">infra</span>
-        <div>
-          <h3>Two fully isolated clusters</h3>
-          <p>Separate Kubernetes clusters for production and development — separate registries,
-            separate databases, separate ingress — with multi-architecture container builds and
-            path-filtered CI/CD so a frontend-only change doesn't trigger a backend rollout.</p>
+    </section>
+
+    <!-- 4. ARCHITECTURE -->
+    <section id="architecture" aria-labelledby="arch-title" class="px-4 py-24">
+      <div class="mx-auto max-w-6xl">
+        <div class="reveal max-w-2xl">
+          <p class="text-sm font-bold uppercase tracking-widest text-brand">System Architecture</p>
+          <h2 id="arch-title" class="mt-3 text-3xl font-extrabold tracking-[-0.03em] text-ink sm:text-5xl">One cluster. Two apps. One source of truth.</h2>
+          <p class="mt-4 text-muted">A TypeScript platform and a Python agent system run side by side on Azure Kubernetes Service, and both go through the same API and the same permission checks. Pick a layer, or tap the diagram, to see what it's built with.</p>
+        </div>
+
+        <div class="mt-12 grid gap-6 lg:grid-cols-5">
+          <div class="reveal lg:col-span-2">
+            <div role="tablist" aria-label="Technology layers" class="grid grid-cols-2 gap-2 lg:grid-cols-1">
+              <button role="tab" id="tab-frontend" aria-controls="panel-frontend" aria-selected="true" data-layer="frontend" class="tab-btn glass flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold text-body transition hover:text-brand">
+                <i data-lucide="monitor-smartphone" class="h-5 w-5 shrink-0"></i><span>Frontend</span>
+              </button>
+              <button role="tab" id="tab-backend" aria-controls="panel-backend" aria-selected="false" data-layer="backend" class="tab-btn glass flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold text-body transition hover:text-brand">
+                <i data-lucide="server-cog" class="h-5 w-5 shrink-0"></i><span>Backend API</span>
+              </button>
+              <button role="tab" id="tab-agents" aria-controls="panel-agents" aria-selected="false" data-layer="agents" class="tab-btn glass flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold text-body transition hover:text-brand">
+                <i data-lucide="bot" class="h-5 w-5 shrink-0"></i><span>Agent Layer</span>
+              </button>
+              <button role="tab" id="tab-data" aria-controls="panel-data" aria-selected="false" data-layer="data" class="tab-btn glass flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold text-body transition hover:text-brand">
+                <i data-lucide="database" class="h-5 w-5 shrink-0"></i><span>Data &amp; AI</span>
+              </button>
+              <button role="tab" id="tab-devops" aria-controls="panel-devops" aria-selected="false" data-layer="devops" class="tab-btn glass col-span-2 flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-semibold text-body transition hover:text-brand lg:col-span-1">
+                <i data-lucide="cloud-cog" class="h-5 w-5 shrink-0"></i><span>DevOps</span>
+              </button>
+            </div>
+
+            <div class="glass-strong mt-4 min-h-[280px] rounded-2xl p-6">
+              <div role="tabpanel" id="panel-frontend" aria-labelledby="tab-frontend" data-panel="frontend">
+                <h3 class="text-lg font-bold text-ink">Frontend</h3>
+                <p class="mt-2 text-sm text-muted">Two Angular apps: the main Worq360 app and the Agentic App. Both are built from standalone components with signals.</p>
+                <ul class="mt-4 space-y-2 text-sm">
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i><span>Angular 22, strict TypeScript, <code class="text-ink">signal()</code> and <code class="text-ink">inject()</code></span></li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>Angular Material; menus built from the user's live permissions</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>Route guards, plus interceptors that refresh the JWT</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>Socket.io notifications; SSE agent stream with approval cards</li>
+                </ul>
+              </div>
+              <div role="tabpanel" id="panel-backend" aria-labelledby="tab-backend" data-panel="backend" hidden>
+                <h3 class="text-lg font-bold text-ink">Backend API</h3>
+                <p class="mt-2 text-sm text-muted">A NestJS modular monolith: one API made of 37 feature modules, each with its own controllers, services and DTOs.</p>
+                <ul class="mt-4 space-y-2 text-sm">
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>NestJS 11 and TypeORM, written in TypeScript</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>Short-lived JWTs, refresh tokens stored hashed, bcrypt and account lockout</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>Strict DTO validation, including custom SSN, routing-number and phone validators</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>Helmet, a request throttler, scheduled alert jobs and an audit service</li>
+                </ul>
+              </div>
+              <div role="tabpanel" id="panel-agents" aria-labelledby="tab-agents" data-panel="agents" hidden>
+                <h3 class="text-lg font-bold text-ink">Agent Layer</h3>
+                <p class="mt-2 text-sm text-muted">A separate Python workspace for the multi-agent system, deployed as its own set of pods.</p>
+                <ul class="mt-4 space-y-2 text-sm">
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>FastAPI, LangGraph and LangChain-Anthropic</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>A2A JSON-RPC with SSE streaming</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>10 FastMCP servers (streamable HTTP)</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>AsyncPostgresSaver checkpoints and LangSmith traces</li>
+                </ul>
+              </div>
+              <div role="tabpanel" id="panel-data" aria-labelledby="tab-data" data-panel="data" hidden>
+                <h3 class="text-lg font-bold text-ink">Data &amp; AI</h3>
+                <p class="mt-2 text-sm text-muted">One PostgreSQL database holds the business records, the vector embeddings and the agents' saved state.</p>
+                <ul class="mt-4 space-y-2 text-sm">
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>Azure Database for PostgreSQL Flexible Server</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>pgvector for help-doc RAG, company-doc RAG and agent memory</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>Private Azure Blob containers for documents and receipts</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>Claude Sonnet for reasoning and Haiku for fast, cheap tasks</li>
+                </ul>
+              </div>
+              <div role="tabpanel" id="panel-devops" aria-labelledby="tab-devops" data-panel="devops" hidden>
+                <h3 class="text-lg font-bold text-ink">DevOps &amp; Deployment</h3>
+                <p class="mt-2 text-sm text-muted">Each deploy writes the image SHA it shipped back into the Kubernetes manifest in git, so git always shows what is running.</p>
+                <ul class="mt-4 space-y-2 text-sm">
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>AKS and ACR, with images built for both amd64 and arm64</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>18 GitHub Actions workflows that sign in to Azure through OIDC, with no stored keys</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>nginx Ingress, with Let's Encrypt certificates from cert-manager</li>
+                  <li class="flex gap-2"><i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>Network policies that deny traffic by default, plus Sentry for errors</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flow diagram -->
+          <div class="reveal lg:col-span-3">
+            <div class="glass relative h-full rounded-2xl p-5 sm:p-7">
+              <div class="mb-5 flex items-center justify-between">
+                <p class="text-sm font-bold text-ink">Worq360 request flow</p>
+                <span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-brand"><i data-lucide="lock-keyhole" class="h-3.5 w-3.5"></i>TLS · JWT on every hop</span>
+              </div>
+
+              <ol class="relative space-y-3" aria-label="Request flow through Worq360">
+                <li class="node glass-strong rounded-xl p-3.5" data-node="frontend" tabindex="0">
+                  <div class="grid gap-2 sm:grid-cols-2">
+                    <div class="flex items-center gap-3">
+                      <span class="ic ic-red h-9 w-9 !rounded-lg"><i data-lucide="app-window" class="h-4 w-4"></i></span>
+                      <div><p class="text-sm font-bold text-ink">Worq360 SPA</p><p class="text-xs text-muted">AskMe · Help | Data | Actions</p></div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="ic ic-red h-9 w-9 !rounded-lg"><i data-lucide="bot" class="h-4 w-4"></i></span>
+                      <div><p class="text-sm font-bold text-ink">Agentic App SPA</p><p class="text-xs text-muted">Chat · approvals · activity</p></div>
+                    </div>
+                  </div>
+                </li>
+                <li aria-hidden="true" class="flex justify-center"><svg width="2" height="22"><line x1="1" y1="0" x2="1" y2="22" stroke="#C41515" stroke-width="2" class="flow-line animate-dash"/></svg></li>
+
+                <li class="node glass-strong rounded-xl p-3.5" data-node="devops" tabindex="0">
+                  <div class="flex items-center gap-3">
+                    <span class="ic ic-slate h-9 w-9 !rounded-lg"><i data-lucide="door-open" class="h-4 w-4"></i></span>
+                    <div><p class="text-sm font-bold text-ink">nginx Ingress</p><p class="text-xs text-muted">TLS (cert-manager) · /api · SSE-tuned /agent-api</p></div>
+                  </div>
+                </li>
+                <li aria-hidden="true" class="flex justify-center"><svg width="2" height="22"><line x1="1" y1="0" x2="1" y2="22" stroke="#C41515" stroke-width="2" class="flow-line animate-dash"/></svg></li>
+
+                <li class="grid gap-3 sm:grid-cols-2">
+                  <div class="node glass-strong rounded-xl p-3.5" data-node="backend" tabindex="0">
+                    <div class="flex items-center gap-3">
+                      <span class="ic ic-blue h-9 w-9 !rounded-lg"><i data-lucide="server-cog" class="h-4 w-4"></i></span>
+                      <div><p class="text-sm font-bold text-ink">NestJS API</p><p class="text-xs text-muted">37 modules · RBAC guards</p></div>
+                    </div>
+                  </div>
+                  <div class="node glass-strong rounded-xl p-3.5" data-node="agents" tabindex="0">
+                    <div class="flex items-center gap-3">
+                      <span class="ic ic-violet h-9 w-9 !rounded-lg"><i data-lucide="git-fork" class="h-4 w-4"></i></span>
+                      <div><p class="text-sm font-bold text-ink">agent-service</p><p class="text-xs text-muted">FastAPI · LangGraph · A2A</p></div>
+                    </div>
+                  </div>
+                </li>
+                <li aria-hidden="true" class="flex justify-center"><svg width="2" height="22"><line x1="1" y1="0" x2="1" y2="22" stroke="#C41515" stroke-width="2" class="flow-line animate-dash"/></svg></li>
+
+                <li class="node glass-strong rounded-xl p-3.5" data-node="agents" tabindex="0">
+                  <p class="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted">10 MCP servers → call back into NestJS as the user</p>
+                  <div class="flex flex-wrap gap-1.5 font-mono text-[11px] text-body">
+                    <span class="rounded bg-page px-2 py-1">mcp-hr</span><span class="rounded bg-page px-2 py-1">mcp-finance</span><span class="rounded bg-page px-2 py-1">mcp-recruitment</span><span class="rounded bg-page px-2 py-1">mcp-compliance</span><span class="rounded bg-page px-2 py-1">mcp-support</span><span class="rounded bg-page px-2 py-1">mcp-devops</span><span class="rounded bg-page px-2 py-1">mcp-budget</span><span class="rounded bg-page px-2 py-1">mcp-security</span><span class="rounded bg-page px-2 py-1">mcp-sdvs-db</span><span class="rounded bg-page px-2 py-1">mcp-external</span>
+                  </div>
+                </li>
+                <li aria-hidden="true" class="flex justify-center"><svg width="2" height="22"><line x1="1" y1="0" x2="1" y2="22" stroke="#C41515" stroke-width="2" class="flow-line animate-dash"/></svg></li>
+
+                <li class="node glass-strong rounded-xl p-3.5" data-node="data" tabindex="0">
+                  <div class="grid gap-2 sm:grid-cols-3">
+                    <div class="flex items-center gap-2.5 rounded-lg bg-page p-2.5"><span class="ic ic-amber h-7 w-7 !rounded-md"><i data-lucide="database" class="h-3.5 w-3.5"></i></span><div><p class="text-xs font-bold text-ink">PostgreSQL</p><p class="text-[10px] text-muted">pgvector · checkpoints</p></div></div>
+                    <div class="flex items-center gap-2.5 rounded-lg bg-page p-2.5"><span class="ic ic-amber h-7 w-7 !rounded-md"><i data-lucide="hard-drive" class="h-3.5 w-3.5"></i></span><div><p class="text-xs font-bold text-ink">Azure Blob</p><p class="text-[10px] text-muted">documents · receipts</p></div></div>
+                    <div class="flex items-center gap-2.5 rounded-lg bg-page p-2.5"><span class="ic ic-amber h-7 w-7 !rounded-md"><i data-lucide="sparkles" class="h-3.5 w-3.5"></i></span><div><p class="text-xs font-bold text-ink">Claude API</p><p class="text-[10px] text-muted">Sonnet · Haiku · Vision</p></div></div>
+                  </div>
+                </li>
+
+                <li class="node mt-4 rounded-xl border border-dashed border-brand/30 bg-brand-lt/60 p-3.5" data-node="devops" tabindex="0">
+                  <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-brand">
+                    <span class="flex items-center gap-1.5"><i data-lucide="container" class="h-4 w-4"></i>AKS · West US</span>
+                    <span class="flex items-center gap-1.5"><i data-lucide="git-branch" class="h-4 w-4"></i>GitHub Actions</span>
+                    <span class="flex items-center gap-1.5"><i data-lucide="activity" class="h-4 w-4"></i>Sentry · LangSmith</span>
+                  </div>
+                </li>
+              </ol>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="dive">
-        <span class="dive-label">security</span>
-        <div>
-          <h3>Hardening as a cadence, not a gate</h3>
-          <p>Recurring structured audits across app and infrastructure layers — not a single
-            pre-launch checklist. Findings (access-control gaps, secret exposure patterns,
-            network-policy review) get fixed and re-verified against the live environment on a
-            standing schedule.</p>
+    </section>
+
+    <!-- 5. ENGINEERING -->
+    <section id="engineering" aria-labelledby="eng-title" class="px-4 py-24">
+      <div class="mx-auto max-w-6xl">
+        <div class="reveal max-w-2xl">
+          <p class="text-sm font-bold uppercase tracking-widest text-brand">Repository Insights</p>
+          <h2 id="eng-title" class="mt-3 text-3xl font-extrabold tracking-[-0.03em] text-ink sm:text-5xl">Engineering rigor you can't see, but can trust.</h2>
+          <p class="mt-4 text-muted">The source code is private. The practices behind it are described here.</p>
+        </div>
+
+        <div class="mt-12 grid gap-5 md:grid-cols-3">
+          <div class="reveal card-hover glass rounded-2xl p-6">
+            <div class="flex items-center justify-between">
+              <span class="ic ic-green h-11 w-11"><i data-lucide="workflow" class="h-5 w-5"></i></span>
+              <span class="rounded-full bg-page px-2.5 py-1 font-mono text-[11px] text-body">required check</span>
+            </div>
+            <h3 class="mt-5 font-bold text-ink">CI that runs real migrations</h3>
+            <p class="mt-1 text-xs text-muted">GitHub Actions · pnpm</p>
+            <p class="mt-3 text-sm text-muted">Every pull request runs a type check, the full migration chain on a fresh pgvector Postgres, then unit and integration tests. Merging into <code class="text-ink">master</code> is blocked until they pass. The suite has 270+ Jest spec files and 30+ pytest files.</p>
+          </div>
+
+          <div class="reveal card-hover glass rounded-2xl p-6">
+            <div class="flex items-center justify-between">
+              <span class="ic ic-red h-11 w-11"><i data-lucide="shield-half" class="h-5 w-5"></i></span>
+              <span class="rounded-full bg-page px-2.5 py-1 text-[11px] text-body">defense in depth</span>
+            </div>
+            <h3 class="mt-5 font-bold text-ink">Security by default</h3>
+            <p class="mt-1 text-xs text-muted">App · cluster · supply chain</p>
+            <p class="mt-3 text-sm text-muted">Every route requires a JWT and a role check. Inputs are strictly validated and webhooks are HMAC-signed. Deploys sign in through OIDC with no stored keys, and cluster network policies deny traffic by default. Dependabot and CodeQL scan the code continuously.</p>
+          </div>
+
+          <div class="reveal card-hover glass rounded-2xl p-6">
+            <div class="flex items-center justify-between">
+              <span class="ic ic-amber h-11 w-11"><i data-lucide="git-commit-horizontal" class="h-5 w-5"></i></span>
+              <span class="rounded-full bg-page px-2.5 py-1 font-mono text-[11px] text-body">GitOps-style</span>
+            </div>
+            <h3 class="mt-5 font-bold text-ink">Git shows what's running</h3>
+            <p class="mt-1 text-xs text-muted">Reusable deploy template</p>
+            <p class="mt-3 text-sm text-muted">Every deploy builds one image for both amd64 and arm64, pushes it to ACR, and applies the manifest. It then commits the image SHA it shipped back into git. A separate workflow promotes images already verified in dev to production.</p>
+          </div>
+        </div>
+
+        <div class="reveal mt-6 flex flex-wrap gap-2 text-xs font-medium text-body">
+          <span class="glass inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="file-code-2" class="h-3.5 w-3.5 text-brand"></i>TypeScript strict</span>
+          <span class="glass inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="git-pull-request" class="h-3.5 w-3.5 text-brand"></i>Protected master</span>
+          <span class="glass inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="scan-search" class="h-3.5 w-3.5 text-brand"></i>CodeQL &amp; Dependabot</span>
+          <span class="glass inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="box" class="h-3.5 w-3.5 text-brand"></i>Multi-arch containers</span>
+          <span class="glass inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="history" class="h-3.5 w-3.5 text-brand"></i>79 versioned migrations</span>
+          <span class="glass inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="key-square" class="h-3.5 w-3.5 text-brand"></i>Keyless OIDC deploys</span>
+          <span class="glass inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5"><i data-lucide="flask-conical" class="h-3.5 w-3.5 text-brand"></i>E2E smoke tests</span>
+        </div>
+
+        <!-- Code viewer (charcoal, like the app's sidebar) -->
+        <div class="reveal band mt-12 overflow-hidden rounded-2xl shadow-2xl shadow-black/25">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+            <div class="flex min-w-0 items-center gap-3">
+              <div class="flex gap-1.5"><span class="h-3 w-3 rounded-full bg-[#FF5F57]"></span><span class="h-3 w-3 rounded-full bg-[#FEBC2E]"></span><span class="h-3 w-3 rounded-full bg-[#28C840]"></span></div>
+              <div role="tablist" aria-label="Code samples" class="flex gap-1">
+                <button role="tab" type="button" aria-selected="true" data-code="hitl" class="code-tab rounded-md px-2.5 py-1 font-mono text-xs text-white/55 hover:text-white">finance_agent.py</button>
+                <button role="tab" type="button" aria-selected="false" data-code="ci" class="code-tab rounded-md px-2.5 py-1 font-mono text-xs text-white/55 hover:text-white">ci-backend.yml</button>
+              </div>
+            </div>
+            <button id="copyBtn" type="button" class="inline-flex items-center gap-1.5 rounded-md bg-white/5 px-2.5 py-1 text-xs text-white/75 transition hover:bg-white/10">
+              <i data-lucide="copy" class="h-3.5 w-3.5"></i><span>Copy</span>
+            </button>
+          </div>
+          <p id="codeNote" class="border-b border-white/10 px-5 py-2 text-[11px] text-white/45"></p>
+          <div class="scrollbar-thin max-h-[520px] overflow-auto p-5">
+<pre data-code-panel="hitl"><code class="language-python">@tool
+async def invoice_send(id: str) -> str:
+    """[HITL] Send a draft invoice to the client.
+    Pauses for human confirmation before executing, unless the invoice total
+    is below the admin-configured invoice_auto_approve_below threshold."""
+    threshold, total_amount = await _invoice_auto_approve_check(id)
+    if threshold > 0 and total_amount is not None and total_amount < threshold:
+        result = await call_mcp_tool(settings.mcp_finance_url, "invoice_send", {"id": id})
+        return json.dumps(_with_auto_approve(result, total_amount, threshold))
+
+    # LangGraph pauses the graph here; the A2A task moves to input-required
+    approval = interrupt({
+        "action": "invoice_send",
+        "description": f"Send invoice {id} to the client?",
+        "data": {"invoice_id": id},
+    })
+    if not approval.get("approved", False):
+        return json.dumps({"canceled": True, "reason": "Action rejected by user"})
+
+    result = await call_mcp_tool(settings.mcp_finance_url, "invoice_send", {"id": id})
+    return json.dumps(result)</code></pre>
+<pre data-code-panel="ci" hidden><code class="language-yaml">name: Backend CI
+
+on:
+  pull_request:
+    branches: [master]   # backend-ci is a required status check
+
+jobs:
+  test:
+    name: backend-ci
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: pnpm install --frozen-lockfile
+      - name: Check nav-config copies are in sync
+        run: node scripts/sync-nav-config.mjs --check
+      - name: Type check
+        working-directory: backend
+        run: npx tsc --noEmit
+      - name: Run full migration chain against a fresh database
+        working-directory: backend
+        run: npm run migration:run
+      - name: Unit tests
+        working-directory: backend
+        run: npm test
+      - name: Integration tests
+        working-directory: backend
+        run: npm run test:integration</code></pre>
+          </div>
         </div>
       </div>
-      <div class="dive">
-        <span class="dive-label">testing</span>
-        <div>
-          <h3>Test suite as a real gate</h3>
-          <p>3,000+ backend and frontend tests enforced through a CI coverage threshold —
-            strict enough that a legitimate merge has silently failed deploy on falling short
-            of it, which shaped how test coverage gets tracked going forward.</p>
+    </section>
+
+    <!-- CTA -->
+    <section aria-labelledby="cta-title" class="px-4 pb-24">
+      <div class="reveal relative mx-auto max-w-5xl overflow-hidden rounded-3xl p-8 text-center text-white sm:p-14" style="background: var(--brand-gradient)">
+        <svg aria-hidden="true" class="absolute -right-20 -top-20 h-72 w-72 animate-ring opacity-25" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#fff" stroke-width="1" stroke-dasharray="200 90" stroke-linecap="round"/></svg>
+        <h2 id="cta-title" class="relative text-2xl font-extrabold tracking-[-0.03em] sm:text-4xl">See the agents at work.</h2>
+        <p class="relative mx-auto mt-3 max-w-xl text-white/80">Hiring teams and prospective clients can ask for a live demo of the platform and the Agentic App, an architecture deep-dive, or a guided code review.</p>
+        <div class="relative mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <a data-link="linkedin" href="https://www.linkedin.com/" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-[#C41515] transition hover:bg-white/90">
+            <i data-lucide="linkedin" class="h-4 w-4"></i> Connect on LinkedIn
+          </a>
+          <a data-link="github" href="https://github.com/" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 rounded-xl bg-white/15 px-6 py-3 text-sm font-semibold text-white ring-1 ring-white/30 transition hover:bg-white/25">
+            <i data-lucide="github" class="h-4 w-4"></i> View GitHub Profile
+          </a>
         </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer id="contact" class="border-t border-line px-4 py-12">
+    <div class="mx-auto flex max-w-6xl flex-col gap-8 md:flex-row md:items-center md:justify-between">
+      <div class="max-w-md">
+        <a href="#top" class="flex items-center gap-2.5" aria-label="Worq360 home">
+          <svg class="h-8 w-8" viewBox="0 0 120 120" aria-hidden="true"><rect width="120" height="120" rx="28" fill="#C41515"/><circle cx="60" cy="37" r="14" fill="#fff"/><path d="M22 88Q60 48 98 88" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/><path d="M32 102Q60 76 88 102" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="7" stroke-linecap="round"/></svg>
+          <span class="text-lg font-bold tracking-tight text-ink">Worq<span class="text-brand">360</span></span>
+        </a>
+        <p class="mt-4 flex items-start gap-2 text-sm text-muted">
+          <i data-lucide="shield-check" class="mt-0.5 h-4 w-4 shrink-0 text-brand"></i>
+          <span>The Worq360 code is kept in a private repository. Private contributions are turned on for my GitHub profile, so ongoing development shows up on the contribution graph.</span>
+        </p>
+      </div>
+      <div class="flex flex-col items-start gap-4 md:items-end">
+        <div class="flex gap-2 text-body">
+          <a data-link="github" href="https://github.com/" target="_blank" rel="noopener" aria-label="GitHub" class="glass grid h-10 w-10 place-items-center rounded-xl transition hover:text-brand"><i data-lucide="github" class="h-4 w-4"></i></a>
+          <a data-link="linkedin" href="https://www.linkedin.com/" target="_blank" rel="noopener" aria-label="LinkedIn" class="glass grid h-10 w-10 place-items-center rounded-xl transition hover:text-brand"><i data-lucide="linkedin" class="h-4 w-4"></i></a>
+          <a data-link="email" href="mailto:" aria-label="Email" class="glass grid h-10 w-10 place-items-center rounded-xl transition hover:text-brand"><i data-lucide="mail" class="h-4 w-4"></i></a>
+        </div>
+        <p class="text-xs text-muted">© <span id="year"></span> Worq360 · Designed and engineered by <span data-config="authorName">Vj</span>.</p>
       </div>
     </div>
-  </section>
-
-  <section>
-    <div class="head-row"><h2>Build log</h2><span class="idx">6 months</span></div>
-    <div class="log">
-      <div class="log-entry">
-        <span class="log-tag">mo. 01–02</span>
-        <div><h3>feat: core platform + identity</h3>
-          <p>Auth, employee lifecycle, and a configurable RBAC engine — permissions as
-            admin-editable data, not hardcoded checks.</p></div>
-      </div>
-      <div class="log-entry">
-        <span class="log-tag">mo. 03–04</span>
-        <div><h3>feat: operational core</h3>
-          <p>Timesheets, invoicing, expenses, assignments, and an LLM-gated business rules
-            engine sitting in front of every submit.</p></div>
-      </div>
-      <div class="log-entry">
-        <span class="log-tag">mo. 05</span>
-        <div><h3>feat: talent + platform modules</h3>
-          <p>Recruitment/ATS, bench sales &amp; training, ticketing with GitHub webhook sync,
-            real-time notifications, reporting, audit trail.</p></div>
-      </div>
-      <div class="log-entry">
-        <span class="log-tag">mo. 06</span>
-        <div><h3>feat: agent layer + infra hardening</h3>
-          <p>Eight-agent LangGraph orchestration over MCP/A2A, dual-cluster Kubernetes
-            deployment, and structured security-hardening passes ahead of launch.</p></div>
-      </div>
-      <div class="log-entry">
-        <span class="log-tag">ongoing</span>
-        <div><h3>chore: hardening cadence</h3>
-          <p>Recurring app + infra security reviews treated as standing practice post-launch,
-            not a one-time gate.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="head-row"><h2>Security cadence</h2><span class="idx">audit trail</span></div>
-    <div class="seclog">
-      <div class="sec-entry">
-        <span class="sec-dot fixed"></span>
-        <span class="sec-when">audit 01</span>
-        <span class="sec-what"><b>App + infra review</b> — closed a sensitive-field leak in an API response and tightened an auth-token expiry bypass, same day as the finding.</span>
-      </div>
-      <div class="sec-entry">
-        <span class="sec-dot fixed"></span>
-        <span class="sec-when">audit 02</span>
-        <span class="sec-what"><b>Resource-level cloud review</b> — closed exposed management ports, locked network access rules on secret stores, and moved a storage account behind a private endpoint.</span>
-      </div>
-      <div class="sec-entry">
-        <span class="sec-dot fixed"></span>
-        <span class="sec-when">audit 03</span>
-        <span class="sec-what"><b>Network review</b> — added a stable-egress NAT gateway and subnet-level network security group on the database tier for both clusters.</span>
-      </div>
-      <div class="sec-entry">
-        <span class="sec-dot fixed"></span>
-        <span class="sec-when">audit 04</span>
-        <span class="sec-what"><b>App review</b> — closed a recurring same-shape data-leak pattern (a sensitive field returned through an unrelated endpoint) found for the fifth time across services, plus a broken-object-level-authorization gap on client data.</span>
-      </div>
-      <div class="sec-entry">
-        <span class="sec-dot ongoing"></span>
-        <span class="sec-when">standing</span>
-        <span class="sec-what"><b>Deliberate, tracked deferrals</b> — a small number of hardening items (secret-rotation cadence, one network-policy layer) are open by conscious cost/risk tradeoff, not oversight, and get re-checked each cycle.</span>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="head-row"><h2>Stack</h2><span class="idx">dependencies</span></div>
-    <table class="stack-table">
-      <tr><td class="k">backend</td><td class="v"><b>NestJS</b> · TypeScript · TypeORM · PostgreSQL · JWT · WebSockets</td></tr>
-      <tr><td class="k">frontend</td><td class="v"><b>Angular 19</b> · standalone components · signals · Material</td></tr>
-      <tr><td class="k">ai / agentic</td><td class="v"><b>LangGraph</b> · MCP · Google A2A · Claude API · vector memory</td></tr>
-      <tr><td class="k">cloud</td><td class="v"><b>Kubernetes (AKS)</b> · multi-arch Docker · GitHub Actions CI/CD · Key Vault · Blob storage · distributed tracing</td></tr>
-      <tr><td class="k">testing</td><td class="v"><b>Jest</b> · Karma · TDD-oriented</td></tr>
-      <tr><td class="k">practice</td><td class="v"><b>AI-assisted, multi-agent workflow</b> for review, refactors &amp; security audits — solo-authored merge decisions</td></tr>
-    </table>
-  </section>
-
-  <footer>
-    <span>// details generalized for public sharing — architecture &amp; stack accurately represented</span>
-    <span>rev 2026-09-16</span>
   </footer>
-</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-yaml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  <script>
+    /* ───────────── SITE CONFIG — edit these values ───────────── */
+    const SITE = {
+      authorName: 'Vj',
+      github: 'https://github.com/sunilravuri',
+      linkedin: 'https://www.linkedin.com/in/sunilravuri',
+      email: '',      // e.g. you@sdvstech.com — email icon hides while empty
+      // Loom: Share → Embed → copy the src, e.g. https://www.loom.com/embed/<id>
+      // A .gif, .mp4 or .webm path in the repo also works (video plays with sound on click).
+      demoUrl: 'assets/worq360-tour.mp4',
+    };
+    /* ─────────────────────────────────────────────────────────── */
+
+    // Theme toggle (same light / Slate Dim pair as the app)
+    document.getElementById('themeBtn').addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem('worq360-theme', next); } catch (e) {}
+    });
+
+    // Hero orbit: move chips around the ring with translate only, so labels never rotate
+    (function () {
+      const track = document.getElementById('orbitTrack');
+      if (!track) return;
+      const chips = [...track.querySelectorAll('.orbit-chip')];
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const LAP_MS = 50000;   // one clockwise lap every 50s
+      const place = spin => {
+        const r = track.clientWidth * 0.432;   // matches --r: min(190px, 37vw) inside min(440px, 86vw)
+        chips.forEach(chip => {
+          const a = (+chip.dataset.angle + spin) * Math.PI / 180;
+          chip.style.transform = `translate(-50%, -50%) translate(${(Math.sin(a) * r).toFixed(1)}px, ${(-Math.cos(a) * r).toFixed(1)}px)`;
+        });
+      };
+      if (still) { place(0); addEventListener('resize', () => place(0)); return; }
+      const t0 = performance.now();
+      const tick = now => { place(((now - t0) / LAP_MS) * 360); requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    })();
+
+    // Scroll reveal — set up first so content always appears
+    const reveals = document.querySelectorAll('.reveal');
+    const showAll = () => reveals.forEach(el => el.classList.add('in'));
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+      }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+      reveals.forEach((el, i) => { el.style.transitionDelay = `${(i % 4) * 80}ms`; io.observe(el); });
+      setTimeout(showAll, 2500);   // fallback for embedded previews
+    } else {
+      showAll();
+    }
+
+    // Config-driven links: hide any link whose value is still empty
+    document.querySelectorAll('[data-config]').forEach(el => { el.textContent = SITE[el.dataset.config]; });
+    const links = { github: SITE.github, linkedin: SITE.linkedin, email: SITE.email && 'mailto:' + SITE.email };
+    document.querySelectorAll('[data-link]').forEach(a => {
+      const href = links[a.dataset.link];
+      if (href) a.href = href; else a.remove();
+    });
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Domain agents (tool counts from ARCHITECTURE_AGENTIC.md §5)
+    const AGENTS = [
+      { id: 'onboarding', name: 'Onboarding', icon: 'user-round-plus', mcp: 'mcp-hr', tools: '16 tools · 8 need approval', ask: '“Onboard Priya and request her I-9 documents”' },
+      { id: 'timeexpense', name: 'Time & Expense', icon: 'clock-4', mcp: 'mcp-hr', tools: '12 tools · 6 need approval', ask: '“Which timesheets are still waiting for my approval?”' },
+      { id: 'finance', name: 'Finance', icon: 'receipt-text', mcp: 'mcp-finance', tools: '22 tools · 11 need approval', ask: '“Generate invoices for Acme’s approved September timesheets”' },
+      { id: 'recruitment', name: 'Recruitment', icon: 'briefcase-business', mcp: 'mcp-recruitment', tools: '23 tools · 10 need approval', ask: '“Shortlist bench candidates for the new Java requisition”' },
+      { id: 'compliance', name: 'Compliance', icon: 'shield-check', mcp: 'mcp-compliance', tools: '19 tools · 11 need approval', ask: '“Whose visas expire in the next 60 days?”' },
+      { id: 'support', name: 'Support', icon: 'life-buoy', mcp: 'mcp-support', tools: '21 tools · 13 need approval', ask: '“Open an IT ticket — my VPN keeps dropping”' },
+      { id: 'admin', name: 'Admin', icon: 'settings-2', mcp: 'mcp-support', tools: '12 tools · 5 need approval', ask: '“Give the recruiter role access to bench sales”' },
+      { id: 'devops', name: 'DevOps', icon: 'terminal', mcp: 'mcp-devops', tools: '5 read-only tools', ask: '“What’s behind the Sentry error spike on /invoices?”' },
+      { id: 'budget', name: 'Budget', icon: 'piggy-bank', mcp: 'mcp-budget', tools: 'Admins only · read-only · daily scan', ask: '“What drove Azure spend up this week?”' },
+      { id: 'security', name: 'Security', icon: 'scan-search', mcp: 'mcp-security', tools: 'Admins only · read-only · daily scan', ask: '“Summarise open Dependabot and CodeQL findings”' },
+    ];
+    const chipWrap = document.getElementById('agentChips');
+    const detail = document.getElementById('agentDetail');
+    chipWrap.innerHTML = AGENTS.map(a =>
+      `<button type="button" class="agent-chip flex items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/[.04] px-2 py-2 text-xs text-white/70" data-agent="${a.id}" aria-pressed="false"><i data-lucide="${a.icon}" class="h-3.5 w-3.5 text-ember"></i>${a.name}</button>`
+    ).join('');
+    function selectAgent(id) {
+      const a = AGENTS.find(x => x.id === id);
+      chipWrap.querySelectorAll('[data-agent]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.agent === id)));
+      detail.innerHTML = `<div class="flex flex-wrap items-center justify-between gap-2"><span class="font-semibold text-white">${a.name} agent</span><span class="font-mono text-[11px] text-ember">${a.mcp}</span></div><p class="mt-1 text-xs text-white/55">${a.tools}</p><p class="mt-2 text-xs italic text-white/80">${a.ask}</p>`;
+    }
+    chipWrap.addEventListener('click', e => { const b = e.target.closest('[data-agent]'); if (b) selectAgent(b.dataset.agent); });
+    selectAgent('finance');
+
+    try { if (window.lucide) lucide.createIcons(); } catch (e) { console.warn('Icons failed to load', e); }
+
+    // HITL demo
+    const steps = [...document.querySelectorAll('[data-step]')];
+    const hitlButtons = document.getElementById('hitlButtons');
+    const hitlResult = document.getElementById('hitlResult');
+    let hitlTimers = [];
+    function playHitl() {
+      hitlTimers.forEach(clearTimeout); hitlTimers = [];
+      steps.forEach(s => s.classList.remove('show'));
+      hitlButtons.classList.remove('hidden'); hitlResult.classList.add('hidden');
+      steps.forEach((s, i) => hitlTimers.push(setTimeout(() => s.classList.add('show'), 300 + i * 900)));
+    }
+    hitlButtons.addEventListener('click', e => {
+      const b = e.target.closest('[data-hitl]'); if (!b) return;
+      const ok = b.dataset.hitl === 'approve';
+      hitlButtons.classList.add('hidden');
+      hitlResult.className = 'mt-3 text-xs ' + (ok ? 'text-[#6BC46D]' : 'text-white/55');
+      hitlResult.textContent = ok
+        ? '✓ Resumed with Command(resume={approved: true}). Invoice INV-0042 was sent.'
+        : '✕ Rejected. The tool returned “canceled”, and nothing was changed.';
+    });
+    document.getElementById('hitlReplay').addEventListener('click', playHitl);
+    const aiSection = document.getElementById('ai');
+    if ('IntersectionObserver' in window) {
+      const hio = new IntersectionObserver(([en]) => { if (en.isIntersecting) { playHitl(); hio.disconnect(); } }, { threshold: 0.2 });
+      hio.observe(aiSection);
+    } else { steps.forEach(s => s.classList.add('show')); }
+
+    // Demo video
+    const frame = document.getElementById('videoFrame');
+    const playBtn = document.getElementById('playBtn');
+    function mountDemo() {
+      const url = SITE.demoUrl.trim();
+      let el;
+      if (/\.(gif|png|webp|jpe?g)$/i.test(url)) {
+        el = Object.assign(document.createElement('img'), { src: url, alt: 'Worq360 product tour', className: 'absolute inset-0 h-full w-full object-cover' });
+      } else if (/\.(mp4|webm)$/i.test(url)) {
+        el = Object.assign(document.createElement('video'), { src: url, controls: true, autoplay: true, playsInline: true, className: 'absolute inset-0 h-full w-full object-cover' });
+      } else {
+        el = document.createElement('iframe');
+        el.src = url + (url.includes('?') ? '&' : '?') + 'autoplay=1';
+        el.title = 'Worq360 walkthrough';
+        el.allow = 'autoplay; fullscreen; picture-in-picture';
+        el.allowFullscreen = true;
+        el.className = 'absolute inset-0 h-full w-full';
+      }
+      frame.innerHTML = '';
+      frame.appendChild(el);
+    }
+    if (!SITE.demoUrl) {
+      document.getElementById('playLabel').textContent = 'Live demo available on request';
+      playBtn.addEventListener('click', () => document.getElementById('cta-title').scrollIntoView({ behavior: 'smooth', block: 'center' }));
+    } else {
+      // "Voice by ElevenLabs" credit is required on ElevenLabs' free plan; remove it on a paid plan.
+      document.getElementById('videoCaption').innerHTML = 'Narrated tour of Worq360&rsquo;s AI agents on the live app (sound on): AskMe, an agent action with human approval, and the Agent Monitor. Names, clients and amounts shown are sample data. Voice by <a href="https://elevenlabs.io" target="_blank" rel="noopener" class="underline hover:text-brand">ElevenLabs</a>.';
+      playBtn.addEventListener('click', mountDemo);
+      if (/\.(gif|webp)$/i.test(SITE.demoUrl)) mountDemo();
+    }
+
+    // Mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    menuBtn.addEventListener('click', () => {
+      const open = !mobileMenu.classList.toggle('hidden');
+      menuBtn.setAttribute('aria-expanded', String(open));
+    });
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden'); menuBtn.setAttribute('aria-expanded', 'false');
+    }));
+
+    // Architecture tabs + diagram
+    const tabs = [...document.querySelectorAll('[role="tab"][data-layer]')];
+    function selectLayer(layer) {
+      tabs.forEach(t => { const on = t.dataset.layer === layer; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; });
+      document.querySelectorAll('[data-panel]').forEach(p => p.hidden = p.dataset.panel !== layer);
+      document.querySelectorAll('[data-node]').forEach(n => n.classList.toggle('active', n.dataset.node === layer));
+    }
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => selectLayer(t.dataset.layer));
+      t.addEventListener('keydown', e => {
+        const dir = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+        if (!dir) return;
+        e.preventDefault();
+        const next = tabs[(i + dir + tabs.length) % tabs.length];
+        next.focus(); selectLayer(next.dataset.layer);
+      });
+    });
+    document.querySelectorAll('[data-node]').forEach(n => {
+      n.addEventListener('click', () => selectLayer(n.dataset.node));
+      n.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectLayer(n.dataset.node); } });
+    });
+    selectLayer('frontend');
+
+    // Code tabs + copy
+    const CODE_NOTES = {
+      hitl: 'Excerpt from agent/agent-service/src/agents/finance_agent.py. One comment was added for this page.',
+      ci: 'Trimmed from .github/workflows/ci-backend.yml (env vars, test-DB setup and push triggers removed).',
+    };
+    const codeTabs = [...document.querySelectorAll('[data-code]')];
+    function selectCode(key) {
+      codeTabs.forEach(t => t.setAttribute('aria-selected', String(t.dataset.code === key)));
+      document.querySelectorAll('[data-code-panel]').forEach(p => p.hidden = p.dataset.codePanel !== key);
+      document.getElementById('codeNote').textContent = CODE_NOTES[key];
+    }
+    codeTabs.forEach(t => t.addEventListener('click', () => selectCode(t.dataset.code)));
+    selectCode('hitl');
+
+    document.getElementById('copyBtn').addEventListener('click', async (e) => {
+      const label = e.currentTarget.querySelector('span');
+      const code = document.querySelector('[data-code-panel]:not([hidden]) code').textContent;
+      try { await navigator.clipboard.writeText(code); label.textContent = 'Copied'; }
+      catch { label.textContent = 'Select & copy'; }
+      setTimeout(() => label.textContent = 'Copy', 1800);
+    });
+  </script>
+</body>
+</html>
